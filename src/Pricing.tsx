@@ -33,14 +33,14 @@ const PricingCard: React.FC<{
 
   return (
     <div
-      className={`relative rounded-2xl p-8 flex flex-col gap-6 ${
+      className={`relative rounded p-8 flex flex-col gap-6 ${
         highlighted
-          ? 'bg-gradient-to-b from-violet-600/20 to-purple-700/10 border border-violet-500/40 glow-purple'
+          ? 'bg-violet-600/8 border border-violet-500/30 glow-purple inset-highlight'
           : 'glass-card'
       }`}
     >
       {highlighted && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-violet-600 to-purple-600 text-white text-xs font-semibold">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded bg-violet-600 text-white text-[11px] font-semibold tracking-widest uppercase border border-violet-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
           Most popular
         </div>
       )}

@@ -10,16 +10,21 @@ export const NavBar: React.FC = () => {
   const notionAuth = useNotionAuth(user);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 1px 0 0 rgba(139,92,246,0.08)' }}>
       <div className="container mx-auto flex justify-between items-center h-16 px-6">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
-            <Zap className="w-4 h-4 text-white" fill="white" />
-          </div>
-          <span className="text-lg font-bold tracking-tight text-white group-hover:text-violet-300 transition-colors">
-            Castcal
+        <div className="flex items-center gap-4">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded bg-violet-600 flex items-center justify-center shadow-[0_2px_12px_rgba(124,58,237,0.3)]">
+              <Zap className="w-4 h-4 text-white" fill="white" />
+            </div>
+            <span className="text-lg font-bold tracking-tight text-white group-hover:text-violet-300 transition-colors">
+              Castcal
+            </span>
+          </Link>
+          <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border border-white/8 bg-white/[0.035] text-white/35 tracking-widest uppercase">
+            Early access
           </span>
-        </Link>
+        </div>
 
         <nav className="flex items-center gap-2">
           {user && <UserButton afterSignOutUrl="/" />}

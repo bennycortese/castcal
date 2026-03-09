@@ -4,32 +4,51 @@
 
 @layer base {
   :root {
-    --background: 240 10% 5%;
-    --foreground: 220 15% 95%;
-    --card: 240 10% 8%;
-    --card-foreground: 220 15% 95%;
-    --popover: 240 10% 8%;
-    --popover-foreground: 220 15% 95%;
-    --primary: 263 70% 60%;
+    /*
+     * Near-neutral dark — very low saturation, just a whisper of cool.
+     * Matches the Greptile / Reducto aesthetic where surfaces are
+     * essentially charcoal-black with no obvious hue.
+     */
+    --background: 220 5% 5%;
+    --foreground: 210 10% 94%;
+
+    --card: 220 5% 7.5%;
+    --card-foreground: 210 10% 94%;
+
+    --popover: 220 5% 7.5%;
+    --popover-foreground: 210 10% 94%;
+
+    /* Violet stays, but used sparingly — headline gradient + primary CTA only */
+    --primary: 263 60% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 10% 15%;
-    --secondary-foreground: 220 15% 85%;
-    --muted: 240 10% 15%;
-    --muted-foreground: 240 5% 55%;
-    --accent: 263 70% 60%;
+
+    --secondary: 220 4% 12%;
+    --secondary-foreground: 220 5% 68%;
+
+    --muted: 220 4% 12%;
+    --muted-foreground: 220 4% 48%;
+
+    --accent: 263 60% 60%;
     --accent-foreground: 0 0% 100%;
+
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 10% 18%;
-    --input: 240 10% 18%;
-    --ring: 263 70% 60%;
-    --radius: 0.75rem;
+
+    --border: 220 4% 12%;
+    --input: 220 4% 12%;
+    --ring: 263 60% 60%;
+
+    /* 4 px — reads as rectangular, not rounded */
+    --radius: 0.25rem;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-background text-foreground;
@@ -40,18 +59,58 @@
 }
 
 @layer utilities {
+  /* ── Typography ── */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* ── Gradient text — the ONE place violet lives prominently ── */
   .gradient-text {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-600;
+    @apply text-transparent bg-clip-text;
+    background-image: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
   }
   .gradient-text-teal {
     @apply text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-500;
   }
+
+  /* ── Glass surface ── */
   .glass-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.026);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.042);
+    border-color: rgba(255, 255, 255, 0.092);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  }
+
+  /* ── Glow — reserved for the pricing CTA card and shimmer button ── */
   .glow-purple {
-    box-shadow: 0 0 40px rgba(124, 58, 237, 0.15);
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.18), 0 0 80px rgba(124, 58, 237, 0.07);
+  }
+  .glow-sm {
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.15);
+  }
+
+  /* ── Hero dot-grid + vignette ── */
+  .bg-dot-grid {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.038) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .bg-radial-fade {
+    background: radial-gradient(ellipse 90% 70% at 50% 50%, transparent 30%, hsl(var(--background)) 100%);
+  }
+
+  /* ── Inset top highlight ── */
+  .inset-highlight {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  /* ── Section divider ── */
+  .section-border {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
 }

@@ -4,28 +4,62 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "../../lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  // Base — shared across every variant
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium " +
+  "ring-offset-background transition-all duration-200 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 " +
+  "disabled:pointer-events-none disabled:opacity-40 select-none",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default:
+          "bg-primary text-primary-foreground hover:bg-primary/90",
+
+        // Solid violet — no gradient, just clean depth via shadow + inset highlight
         primary:
-          "bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-200",
-        nav: "border border-transparent hover:border-white/10 text-white/60 hover:text-white hover:bg-white/5 py-2 px-3 rounded-lg text-sm font-medium transition-all w-full md:w-auto",
+          "bg-violet-600 text-white border border-violet-500/40 " +
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.11),0_4px_18px_rgba(124,58,237,0.28)] " +
+          "hover:bg-violet-500 " +
+          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_4px_24px_rgba(124,58,237,0.44)] " +
+          "active:translate-y-px",
+
+        // Ghost nav link — no border until hover
+        nav:
+          "text-white/55 hover:text-white hover:bg-white/5 " +
+          "border border-transparent hover:border-white/8",
+
+        // Outlined — subtle border, reveals on hover
         outline:
-          "border border-white/15 bg-transparent text-white/80 hover:bg-white/5 hover:border-white/25",
-        ghost: "hover:bg-white/5 hover:text-white text-white/60",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        link: "text-primary underline-offset-4 hover:underline",
+          "border border-white/10 bg-transparent text-white/65 " +
+          "hover:bg-white/5 hover:border-white/18 hover:text-white",
+
+        // Filled secondary surface
+        secondary:
+          "bg-white/5 text-white/75 border border-white/8 " +
+          "hover:bg-white/9 hover:text-white hover:border-white/14",
+
+        ghost:
+          "text-white/55 hover:text-white hover:bg-white/5",
+
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+
+        link:
+          "text-violet-400 underline-offset-4 hover:underline hover:text-violet-300",
+
+        // Legacy — kept for backward compat
         generate:
-          "bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-base px-8 py-3 rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:from-violet-500 hover:to-purple-500 transition-all duration-200",
+          "bg-violet-600 text-white font-semibold " +
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.11),0_4px_20px_rgba(124,58,237,0.3)] " +
+          "hover:bg-violet-500 " +
+          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_4px_28px_rgba(124,58,237,0.5)] " +
+          "border border-violet-500/40 active:translate-y-px",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-9 px-4 py-2 rounded-lg",
+        sm:      "h-8 px-3 text-xs rounded-lg",
+        lg:      "h-11 px-6 rounded-lg",
+        icon:    "h-9 w-9 rounded-lg",
       },
     },
     defaultVariants: {
