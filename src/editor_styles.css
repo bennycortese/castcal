@@ -1,0 +1,20 @@
+.editor-container {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid hsl(240 10% 18%);
+  padding: 14px 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background-color: hsl(240 10% 8%);
+  border-radius: 10px;
+  color: hsl(220 15% 90%);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.editor-container:focus-within {
+  border-color: hsl(263 70% 60%);
+  box-shadow: 0 0 0 2px hsla(263, 70%, 60%, 0.15);
+}
