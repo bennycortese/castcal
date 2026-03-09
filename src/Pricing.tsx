@@ -2,7 +2,7 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { Button } from './@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '@clerk/react';
 import { useNotionAuth, useStripeSubscription } from './hooks';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';

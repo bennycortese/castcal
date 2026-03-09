@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavBar } from './Navbar';
 import { Footer } from './Footer';
-import { SignIn } from '@clerk/clerk-react';
+import { SignIn } from '@clerk/react';
 
 const SignInPage: React.FC = () => {
   return (

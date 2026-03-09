@@ -1,5 +1,5 @@
 import { $createParagraphNode, $createTextNode, $getRoot } from 'lexical';
-import { useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -27,7 +27,7 @@ function AutoFocusPlugin() {
 function onError(error: any) { console.error(error); }
 
 interface LexicalEditorProps {
-  setGetEditorText: (fn: () => string) => void;
+  setGetEditorText: Dispatch<SetStateAction<() => string>>;
 }
 
 function SyncPlugin({ setGetEditorText }: LexicalEditorProps) {

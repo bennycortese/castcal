@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { ClerkProvider, useUser } from '@clerk/clerk-react';
+import { ClerkProvider, useUser } from '@clerk/react';
 import LandingPage from './LandingPage';
 import NotionAuth from './NotionAuth';
 import NotionRedirect from './NotionRedirect';

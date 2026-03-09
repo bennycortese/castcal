@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '@clerk/react';
 import { NavBar } from './Navbar';
 import { Footer } from './Footer';
 import { Button } from './@/components/ui/button';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavBar } from './Navbar';
 import { Footer } from './Footer';
-import { SignUp } from '@clerk/clerk-react';
+import { SignUp } from '@clerk/react';
 
 const RegistrationPage: React.FC = () => {
   return (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavBar } from './Navbar';
 import { Footer } from './Footer';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '@clerk/react';
 import {
   Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from './@/components/ui/select';

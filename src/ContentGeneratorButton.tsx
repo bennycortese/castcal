@@ -2,7 +2,7 @@ import React from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { generatingStateAtom, selectedDestinationsAtom, exportResultsAtom, ExportResult } from './atoms';
 import { useCurrentMonthCount, useMaxMonthCount, useStripeSubscription } from './hooks';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '@clerk/react';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { ShimmerButton } from './@/components/magic/shimmer-button';
 

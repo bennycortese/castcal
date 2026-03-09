@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '@clerk/react';
 import { useLocation, Link } from 'react-router-dom';
 import { NavBar } from './Navbar';
 import { Footer } from './Footer';

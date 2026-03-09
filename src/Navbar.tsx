@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './@/components/ui/button';
-import { useUser, UserButton } from '@clerk/clerk-react';
+import { useUser, UserButton } from '@clerk/react';
 import { useNotionAuth } from './hooks';
 import { Zap } from 'lucide-react';
 

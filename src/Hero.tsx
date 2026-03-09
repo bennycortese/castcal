@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '@clerk/react';
 import { useNotionAuth } from './hooks';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { ShimmerButton } from './@/components/magic/shimmer-button';
