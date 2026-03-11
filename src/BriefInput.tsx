@@ -124,7 +124,7 @@ const BriefInput: React.FC = () => {
                 </Select>
               ) : (
                 <div className="flex items-center gap-2.5 text-sm text-white/30">
-                  <div className="w-4 h-4 border border-violet-500/30 border-t-violet-500 rounded-full animate-spin flex-shrink-0" />
+                  <div className="w-4 h-4 border border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin flex-shrink-0" />
                   Loading pages...
                 </div>
               )}

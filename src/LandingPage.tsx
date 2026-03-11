@@ -10,10 +10,13 @@ const LandingPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <NavBar />
-      <Hero />
-      <HowItWorks />
-      <Features />
-      <Pricing />
+      {/* Greptile-style: border-x frames content in a subtle vertical channel */}
+      <div className="flex-grow w-full max-w-[1400px] mx-auto border-x border-white/[0.04]">
+        <Hero />
+        <HowItWorks />
+        <Features />
+        <Pricing />
+      </div>
       <Footer />
     </div>
   );

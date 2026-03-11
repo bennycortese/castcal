@@ -4,20 +4,20 @@ import { Zap } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-gray-100 py-12 bg-background">
-      <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+    <footer className="border-t border-white/[0.05] py-10 bg-background">
+      <div className="w-full max-w-[1400px] mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <Zap className="w-3.5 h-3.5 text-white" fill="white" />
+          <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center">
+            <Zap className="w-3 h-3 text-white" fill="white" />
           </div>
-          <span className="font-semibold text-gray-900">Castcal</span>
+          <span className="font-semibold text-white/80 text-sm">Castcal</span>
         </div>
 
-        <p className="text-sm text-gray-400 text-center">
-          Notion is a trademark of Notion Labs, Inc. Airtable is a trademark of Formagrid Inc.
+        <p className="text-xs text-white/22 text-center font-mono-feature">
+          Notion is a trademark of Notion Labs, Inc. · Airtable is a trademark of Formagrid Inc.
         </p>
 
-        <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} Castcal. All rights reserved.</p>
+        <p className="text-xs text-white/22 font-mono-feature">&copy; {new Date().getFullYear()} Castcal</p>
       </div>
     </footer>
   );

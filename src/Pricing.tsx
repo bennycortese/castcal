@@ -35,28 +35,28 @@ const PricingCard: React.FC<{
     <div
       className={`relative rounded-xl p-8 flex flex-col gap-6 ${
         highlighted
-          ? 'bg-white border-2 border-indigo-500 glow-purple shadow-lg'
+          ? 'bg-indigo-600/[0.08] border border-indigo-500/35 glow-purple'
           : 'glass-card'
       }`}
     >
       {highlighted && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-indigo-600 text-white text-[11px] font-semibold tracking-widest uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-indigo-600 text-white text-[10px] font-mono-feature font-semibold tracking-widest uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
           Most popular
         </div>
       )}
       <div>
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-2">{title}</h3>
+        <p className="font-mono-feature text-[11px] font-semibold text-white/45 uppercase tracking-widest mb-3">{title}</p>
         <div className="flex items-end gap-1 mb-2">
-          <span className="text-4xl font-bold text-gray-900">{price}</span>
-          <span className="text-gray-400 mb-1.5">/mo</span>
+          <span className="text-4xl font-bold text-white">{price}</span>
+          <span className="text-white/35 mb-1.5 text-sm">/mo</span>
         </div>
-        <p className="text-sm text-gray-500">{description}</p>
+        <p className="text-sm text-white/38">{description}</p>
       </div>
 
       <ul className="flex flex-col gap-3 flex-grow">
         {features.map((f, i) => (
-          <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700">
-            <Check className="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0" />
+          <li key={i} className="flex items-start gap-2.5 text-sm text-white/65">
+            <Check className="w-4 h-4 text-indigo-400 mt-0.5 flex-shrink-0" />
             {f}
           </li>
         ))}
@@ -64,13 +64,9 @@ const PricingCard: React.FC<{
 
       {highlighted ? (
         isActive ? (
-          <Button variant="outline" disabled className="w-full opacity-60">
-            Active subscription
-          </Button>
+          <Button variant="outline" disabled className="w-full opacity-60">Active subscription</Button>
         ) : user && notionAuth ? (
-          <Button variant="primary" className="w-full" onClick={handleCheckout}>
-            Subscribe now
-          </Button>
+          <Button variant="primary" className="w-full" onClick={handleCheckout}>Subscribe now</Button>
         ) : (
           <Link to="/login" className="w-full">
             <Button variant="primary" className="w-full">Get started</Button>
@@ -87,19 +83,20 @@ const PricingCard: React.FC<{
 
 const Pricing: React.FC = () => {
   return (
-    <section className="py-24 px-6 border-t border-gray-100">
-      <div className="container mx-auto max-w-3xl">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Simple pricing</h2>
-          <p className="text-gray-500">No per-seat fees. No surprise charges.</p>
+    <section className="py-24 px-8 border-t border-white/[0.05]">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-16">
+          <p className="font-mono-feature text-[11px] uppercase tracking-widest text-white/30 mb-4">Pricing</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Simple pricing</h2>
+          <p className="text-white/40">No per-seat fees. No surprise charges.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <PricingCard
             title="Free"
             price="$0"
             description="Try Castcal with no commitment."
-            features={['3 calendar exports per month', 'Notion export', 'PDF & DOCX upload', 'Claude claude-sonnet-4-6 generation']}
+            features={['3 calendar exports per month', 'Notion export', 'PDF & DOCX upload', 'Claude Sonnet generation']}
             highlighted={false}
           />
           <PricingCard

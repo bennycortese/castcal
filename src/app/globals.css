@@ -5,39 +5,38 @@
 @layer base {
   :root {
     /*
-     * Warm off-white — slightly creamy, not clinical pure-white.
-     * Matches the Browserbase / clean modern SaaS aesthetic.
+     * True near-black — neutral, no hue cast.
+     * Matches Greptile's #0a0a0a aesthetic.
      */
-    --background: 40 20% 98%;
-    --foreground: 220 20% 9%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 9%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 9%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Indigo — more electric / developer-tooling feel */
-    --primary: 245 70% 55%;
+    /* Indigo — electric developer-tooling accent */
+    --primary: 245 72% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 12% 94%;
-    --secondary-foreground: 220 15% 30%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 65%;
 
-    --muted: 220 10% 95%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 245 70% 55%;
+    --accent: 245 72% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 12% 90%;
-    --input: 220 12% 90%;
-    --ring: 245 70% 55%;
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: 245 72% 60%;
 
-    /* 6px — slightly more modern */
     --radius: 0.375rem;
   }
 }
@@ -62,52 +61,82 @@
   .text-balance {
     text-wrap: balance;
   }
+  .font-mono-feature {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  }
 
-  /* ── Gradient text — indigo on light backgrounds ── */
+  /* ── Gradient text ── */
   .gradient-text {
     @apply text-transparent bg-clip-text;
-    background-image: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+    background-image: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%);
   }
   .gradient-text-teal {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-indigo-500;
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400;
   }
 
-  /* ── Card surface — white with subtle shadow on light bg ── */
+  /* ── Dark glass surface ── */
   .glass-card {
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.07);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
-    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    background: rgba(255, 255, 255, 0.028);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
   .glass-card:hover {
-    border-color: rgba(0, 0, 0, 0.11);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07), 0 6px 24px rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.044);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
-  /* ── Glow — indigo ambient glow for pricing CTA ── */
+  /* ── Glow — indigo ── */
   .glow-purple {
-    box-shadow: 0 0 40px rgba(79, 70, 229, 0.12), 0 0 80px rgba(79, 70, 229, 0.05);
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.2), 0 0 80px rgba(99, 102, 241, 0.08);
   }
   .glow-sm {
-    box-shadow: 0 0 16px rgba(79, 70, 229, 0.12);
+    box-shadow: 0 0 16px rgba(99, 102, 241, 0.18);
   }
 
-  /* ── Hero dot-grid + vignette ── */
+  /* ── Hero grid pattern (Greptile-style) ── */
+  .bg-grid-lines {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
   .bg-dot-grid {
-    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
   }
   .bg-radial-fade {
-    background: radial-gradient(ellipse 90% 70% at 50% 50%, transparent 30%, hsl(var(--background)) 100%);
+    background: radial-gradient(ellipse 90% 70% at 50% 50%, transparent 25%, hsl(var(--background)) 100%);
   }
 
   /* ── Inset top highlight ── */
   .inset-highlight {
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   /* ── Section divider ── */
   .section-border {
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* ── Multi-color feature badges ── */
+  .badge-emerald {
+    @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+  }
+  .badge-orange {
+    @apply bg-orange-500/10 text-orange-400 border border-orange-500/20;
+  }
+  .badge-pink {
+    @apply bg-pink-500/10 text-pink-400 border border-pink-500/20;
+  }
+  .badge-yellow {
+    @apply bg-yellow-500/10 text-yellow-400 border border-yellow-500/20;
+  }
+  .badge-cyan {
+    @apply bg-cyan-500/10 text-cyan-400 border border-cyan-500/20;
+  }
+  .badge-indigo {
+    @apply bg-indigo-500/10 text-indigo-400 border border-indigo-500/20;
   }
 }

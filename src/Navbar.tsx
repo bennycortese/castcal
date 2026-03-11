@@ -10,23 +10,23 @@ export const NavBar: React.FC = () => {
   const notionAuth = useNotionAuth(user);
 
   return (
-    <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl border-b border-gray-200/70">
-      <div className="container mx-auto flex justify-between items-center h-16 px-6">
+    <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl border-b border-white/[0.05]">
+      <div className="w-full max-w-[1400px] mx-auto flex justify-between items-center h-14 px-8">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-[0_2px_12px_rgba(79,70,229,0.25)]">
-              <Zap className="w-4 h-4 text-white" fill="white" />
+            <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shadow-[0_2px_12px_rgba(99,102,241,0.35)]">
+              <Zap className="w-3.5 h-3.5 text-white" fill="white" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors">
+            <span className="text-base font-bold tracking-tight text-white group-hover:text-indigo-300 transition-colors">
               Castcal
             </span>
           </Link>
-          <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-indigo-200 bg-indigo-50 text-indigo-600 tracking-widest uppercase">
+          <span className="font-mono-feature hidden md:inline-flex items-center px-2 py-0.5 rounded text-[9px] font-semibold border border-indigo-500/25 bg-indigo-500/8 text-indigo-400 tracking-widest uppercase">
             Early access
           </span>
         </div>
 
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1.5">
           {user && <UserButton afterSignOutUrl="/" />}
           {user && (
             <Link to="/profile">
