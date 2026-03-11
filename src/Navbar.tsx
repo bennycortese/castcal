@@ -10,18 +10,18 @@ export const NavBar: React.FC = () => {
   const notionAuth = useNotionAuth(user);
 
   return (
-    <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 1px 0 0 rgba(139,92,246,0.08)' }}>
+    <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl border-b border-gray-200/70">
       <div className="container mx-auto flex justify-between items-center h-16 px-6">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded bg-violet-600 flex items-center justify-center shadow-[0_2px_12px_rgba(124,58,237,0.3)]">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-[0_2px_12px_rgba(79,70,229,0.25)]">
               <Zap className="w-4 h-4 text-white" fill="white" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-white group-hover:text-violet-300 transition-colors">
+            <span className="text-lg font-bold tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors">
               Castcal
             </span>
           </Link>
-          <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border border-white/8 bg-white/[0.035] text-white/35 tracking-widest uppercase">
+          <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-indigo-200 bg-indigo-50 text-indigo-600 tracking-widest uppercase">
             Early access
           </span>
         </div>

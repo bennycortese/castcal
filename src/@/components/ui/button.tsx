@@ -15,45 +15,46 @@ const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground hover:bg-primary/90",
 
-        // Solid violet — no gradient, just clean depth via shadow + inset highlight
+        // Solid indigo — clean depth via shadow + inset highlight
         primary:
-          "bg-violet-600 text-white border border-violet-500/40 " +
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.11),0_4px_18px_rgba(124,58,237,0.28)] " +
-          "hover:bg-violet-500 " +
-          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_4px_24px_rgba(124,58,237,0.44)] " +
+          "bg-indigo-600 text-white border border-indigo-500/40 " +
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_4px_18px_rgba(79,70,229,0.22)] " +
+          "hover:bg-indigo-500 " +
+          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_24px_rgba(79,70,229,0.35)] " +
           "active:translate-y-px",
 
-        // Ghost nav link — no border until hover
+        // Ghost nav link — works on light backgrounds
         nav:
-          "text-white/55 hover:text-white hover:bg-white/5 " +
-          "border border-transparent hover:border-white/8",
+          "text-gray-600 hover:text-gray-900 hover:bg-gray-100 " +
+          "border border-transparent hover:border-gray-200",
 
-        // Outlined — subtle border, reveals on hover
+        // Outlined — subtle border, dark text on light bg
         outline:
-          "border border-white/10 bg-transparent text-white/65 " +
-          "hover:bg-white/5 hover:border-white/18 hover:text-white",
+          "border border-gray-200 bg-white text-gray-700 " +
+          "hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 " +
+          "shadow-sm",
 
         // Filled secondary surface
         secondary:
-          "bg-white/5 text-white/75 border border-white/8 " +
-          "hover:bg-white/9 hover:text-white hover:border-white/14",
+          "bg-gray-100 text-gray-700 border border-gray-200 " +
+          "hover:bg-gray-200 hover:text-gray-900",
 
         ghost:
-          "text-white/55 hover:text-white hover:bg-white/5",
+          "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
 
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
 
         link:
-          "text-violet-400 underline-offset-4 hover:underline hover:text-violet-300",
+          "text-indigo-600 underline-offset-4 hover:underline hover:text-indigo-700",
 
         // Legacy — kept for backward compat
         generate:
-          "bg-violet-600 text-white font-semibold " +
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.11),0_4px_20px_rgba(124,58,237,0.3)] " +
-          "hover:bg-violet-500 " +
-          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_4px_28px_rgba(124,58,237,0.5)] " +
-          "border border-violet-500/40 active:translate-y-px",
+          "bg-indigo-600 text-white font-semibold " +
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_4px_20px_rgba(79,70,229,0.25)] " +
+          "hover:bg-indigo-500 " +
+          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_28px_rgba(79,70,229,0.4)] " +
+          "border border-indigo-500/40 active:translate-y-px",
       },
       size: {
         default: "h-9 px-4 py-2 rounded-lg",

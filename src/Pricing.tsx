@@ -33,30 +33,30 @@ const PricingCard: React.FC<{
 
   return (
     <div
-      className={`relative rounded p-8 flex flex-col gap-6 ${
+      className={`relative rounded-xl p-8 flex flex-col gap-6 ${
         highlighted
-          ? 'bg-violet-600/8 border border-violet-500/30 glow-purple inset-highlight'
+          ? 'bg-white border-2 border-indigo-500 glow-purple shadow-lg'
           : 'glass-card'
       }`}
     >
       {highlighted && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded bg-violet-600 text-white text-[11px] font-semibold tracking-widest uppercase border border-violet-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-indigo-600 text-white text-[11px] font-semibold tracking-widest uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
           Most popular
         </div>
       )}
       <div>
-        <h3 className="text-sm font-semibold text-white/60 uppercase tracking-widest mb-2">{title}</h3>
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-2">{title}</h3>
         <div className="flex items-end gap-1 mb-2">
-          <span className="text-4xl font-bold text-white">{price}</span>
-          <span className="text-white/40 mb-1.5">/mo</span>
+          <span className="text-4xl font-bold text-gray-900">{price}</span>
+          <span className="text-gray-400 mb-1.5">/mo</span>
         </div>
-        <p className="text-sm text-white/40">{description}</p>
+        <p className="text-sm text-gray-500">{description}</p>
       </div>
 
       <ul className="flex flex-col gap-3 flex-grow">
         {features.map((f, i) => (
-          <li key={i} className="flex items-start gap-2.5 text-sm text-white/70">
-            <Check className="w-4 h-4 text-violet-400 mt-0.5 flex-shrink-0" />
+          <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700">
+            <Check className="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0" />
             {f}
           </li>
         ))}
@@ -87,11 +87,11 @@ const PricingCard: React.FC<{
 
 const Pricing: React.FC = () => {
   return (
-    <section className="py-24 px-6 border-t border-white/5">
+    <section className="py-24 px-6 border-t border-gray-100">
       <div className="container mx-auto max-w-3xl">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Simple pricing</h2>
-          <p className="text-white/40">No per-seat fees. No surprise charges.</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Simple pricing</h2>
+          <p className="text-gray-500">No per-seat fees. No surprise charges.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

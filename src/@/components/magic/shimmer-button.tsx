@@ -17,8 +17,8 @@ export const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonPr
       shimmerColor = 'rgba(255,255,255,0.55)',
       shimmerSize = '0.04em',
       shimmerDuration = '3.5s',
-      borderRadius = '4px',
-      background = '#5b21b6',       // solid violet — no gradient
+      borderRadius = '8px',
+      background = '#4f46e5',       // indigo-600
       className,
       children,
       ...props
@@ -37,12 +37,12 @@ export const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonPr
         } as CSSProperties}
         className={cn(
           'group relative z-0 flex cursor-pointer items-center justify-center overflow-hidden',
-          '[border-radius:var(--radius)] border border-violet-500/35 px-6 py-3',
+          '[border-radius:var(--radius)] border border-indigo-400/30 px-6 py-3',
           'whitespace-nowrap text-white text-sm font-semibold tracking-wide',
           '[background:var(--bg)]',
           // depth: inset highlight on top edge
-          'shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_6px_24px_rgba(91,33,182,0.35)]',
-          'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_6px_28px_rgba(91,33,182,0.55)]',
+          'shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_6px_24px_rgba(79,70,229,0.28)]',
+          'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_6px_28px_rgba(79,70,229,0.45)]',
           'transform-gpu transition-all duration-300 ease-in-out active:translate-y-px active:shadow-none',
           'disabled:opacity-40 disabled:cursor-not-allowed disabled:active:translate-y-0',
           className
