@@ -49,7 +49,7 @@ const BriefInput: React.FC = () => {
         const data = await res.json();
         setNotionAuth(data?.notion_auth || '');
         setUserId(user.id);
-      } catch { /* ignore */ }
+      } catch { }
     };
     fetchAuth();
   }, [user]);
@@ -65,7 +65,7 @@ const BriefInput: React.FC = () => {
         });
         const data = await res.json();
         setPages(data.results || []);
-      } catch { /* ignore */ }
+      } catch { }
     };
     fetchPages();
   }, [notionAuth]);
