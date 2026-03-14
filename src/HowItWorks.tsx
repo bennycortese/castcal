@@ -4,7 +4,7 @@ const steps = [
   {
     number: '01',
     title: 'Connect your workspace',
-    description: 'Sign in and authorize Notion with one click. Optionally add your Airtable or Gamma API keys.',
+    description: 'Sign in and authorize Notion with one click. Optionally add your Airtable token or Slack webhook.',
   },
   {
     number: '02',
@@ -14,7 +14,7 @@ const steps = [
   {
     number: '03',
     title: 'Choose your destinations',
-    description: 'Pick Notion, Airtable, or Gamma — or all three. Your calendar lands in every tool simultaneously.',
+    description: 'Pick Notion, Airtable, Google Sheets, or Slack — or all of them. Your calendar lands everywhere at once.',
   },
   {
     number: '04',

@@ -27,27 +27,26 @@ const DESTINATIONS: Destination[] = [
     requiresToken: 'Add Airtable token in Profile',
   },
   {
-    id: 'gamma',
-    name: 'Gamma',
-    icon: 'γ',
-    description: 'Campaign deck auto-generated',
-    requiresToken: 'Add Gamma key in Profile',
+    id: 'csv',
+    name: 'Google Sheets',
+    icon: '⊞',
+    description: 'Download as CSV, open in Sheets',
   },
   {
-    id: 'google_slides',
-    name: 'Google Slides',
-    icon: 'G',
-    description: 'Slide deck per content item',
-    comingSoon: true,
+    id: 'slack',
+    name: 'Slack',
+    icon: '#',
+    description: 'Post summary to a channel',
+    requiresToken: 'Add Slack webhook in Profile',
   },
 ];
 
 interface DestinationSelectorProps {
   airtableToken: string | null;
-  gammaKey: string | null;
+  slackWebhookUrl: string | null;
 }
 
-const DestinationSelector: React.FC<DestinationSelectorProps> = ({ airtableToken, gammaKey }) => {
+const DestinationSelector: React.FC<DestinationSelectorProps> = ({ airtableToken, slackWebhookUrl }) => {
   const [selected, setSelected] = useAtom(selectedDestinationsAtom);
 
   const toggle = (id: string) => {
@@ -66,7 +65,7 @@ const DestinationSelector: React.FC<DestinationSelectorProps> = ({ airtableToken
   const isDisabled = (d: Destination) => {
     if (d.comingSoon) return true;
     if (d.id === 'airtable' && !airtableToken) return true;
-    if (d.id === 'gamma' && !gammaKey) return true;
+    if (d.id === 'slack' && !slackWebhookUrl) return true;
     return false;
   };
 

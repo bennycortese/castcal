@@ -25,7 +25,7 @@ interface ContentGeneratorButtonProps {
   selectedPageId: string;
   userId: string;
   airtableToken: string | null;
-  gammaKey: string | null;
+  slackWebhookUrl: string | null;
 }
 
 const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
@@ -34,7 +34,7 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
   selectedPageId,
   userId,
   airtableToken,
-  gammaKey,
+  slackWebhookUrl,
 }) => {
   const [generatingState, setGeneratingState] = useAtom(generatingStateAtom);
   const setExportResults = useSetAtom(exportResultsAtom);
@@ -162,18 +162,44 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
     }
   };
 
-  const pushToGamma = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
+  const pushToCSV = (title: string, items: ContentItem[]): ExportResult => {
+    try {
+      const header = ['Title', 'Channel', 'Publish Date', 'Status', 'Format', 'Hook', 'Description'];
+      const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+      const rows = items.map((item) => [
+        escape(`${item.emoji} ${item.title}`),
+        escape(item.channel),
+        escape(item.publish_date),
+        escape(item.status),
+        escape(item.format),
+        escape(item.hook),
+        escape(item.description),
+      ].join(','));
+      const csv = [header.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title.replace(/[^a-z0-9]/gi, '_')}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      return { destination: 'csv', success: true };
+    } catch (err) {
+      return { destination: 'csv', success: false, error: String(err) };
+    }
+  };
+
+  const pushToSlack = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
     const headers = await authHeaders();
     try {
-      const res = await fetch(`${API_URL}/api/push-gamma`, {
+      const res = await fetch(`${API_URL}/api/push-slack`, {
         method: 'POST', headers, credentials: 'include',
-        body: JSON.stringify({ gammaKey, title, items }),
+        body: JSON.stringify({ slackWebhookUrl, title, items }),
       });
-      if (!res.ok) throw new Error('Gamma push failed');
-      const data = await res.json();
-      return { destination: 'gamma', success: true, link: data.link };
+      if (!res.ok) throw new Error('Slack push failed');
+      return { destination: 'slack', success: true };
     } catch (err) {
-      return { destination: 'gamma', success: false, error: String(err) };
+      return { destination: 'slack', success: false, error: String(err) };
     }
   };
 
@@ -203,7 +229,8 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
 
       if (selectedDestinations.has('notion') && notionAuth && selectedPageId) results.push(await pushToNotion(calendar_title, items));
       if (selectedDestinations.has('airtable') && airtableToken) results.push(await pushToAirtable(calendar_title, items));
-      if (selectedDestinations.has('gamma') && gammaKey) results.push(await pushToGamma(calendar_title, items));
+      if (selectedDestinations.has('csv')) results.push(pushToCSV(calendar_title, items));
+      if (selectedDestinations.has('slack') && slackWebhookUrl) results.push(await pushToSlack(calendar_title, items));
 
       setExportResults(results);
       await incrementUsage();

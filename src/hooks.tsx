@@ -101,8 +101,8 @@ export const useStripeSubscription = (user: any) => {
 export const useUserIntegrations = (user: any) => {
   const [integrations, setIntegrations] = useState<{
     airtable_token: string | null;
-    gamma_api_key: string | null;
-  }>({ airtable_token: null, gamma_api_key: null });
+    slack_webhook_url: string | null;
+  }>({ airtable_token: null, slack_webhook_url: null });
 
   useEffect(() => {
     const fetch_ = async () => {
@@ -115,11 +115,11 @@ export const useUserIntegrations = (user: any) => {
         });
         const data = await res.json();
         setIntegrations({
-          airtable_token: data.airtable_token || null,
-          gamma_api_key: data.gamma_api_key || null,
+          airtable_token:    data.airtable_token    || null,
+          slack_webhook_url: data.slack_webhook_url || null,
         });
       } catch {
-        setIntegrations({ airtable_token: null, gamma_api_key: null });
+        setIntegrations({ airtable_token: null, slack_webhook_url: null });
       }
     };
     fetch_();

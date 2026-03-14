@@ -24,7 +24,7 @@ const features = [
     icon: <Send className="w-5 h-5 text-white/60" />,
     title: 'Deliver to your stack',
     description:
-      'Push structured content calendars to Notion, Airtable, or Gamma in one click. Your team gets a live, editable doc immediately.',
+      'Push structured content calendars to Notion, Airtable, or Google Sheets — or ping your team on Slack — in one click.',
   },
   {
     badge: 'Speed',

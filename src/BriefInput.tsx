@@ -136,7 +136,7 @@ const BriefInput: React.FC = () => {
             <div className="glass-card rounded-xl p-5">
               <DestinationSelector
                 airtableToken={integrations.airtable_token}
-                gammaKey={integrations.gamma_api_key}
+                slackWebhookUrl={integrations.slack_webhook_url}
               />
             </div>
 
@@ -146,7 +146,7 @@ const BriefInput: React.FC = () => {
               selectedPageId={selectedPage?.id || ''}
               userId={userId}
               airtableToken={integrations.airtable_token}
-              gammaKey={integrations.gamma_api_key}
+              slackWebhookUrl={integrations.slack_webhook_url}
             />
 
             {/* Status */}

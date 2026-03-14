@@ -10,5 +10,9 @@ CREATE TABLE IF NOT EXISTS "castcal-auth" (
   all_uploaded_content TEXT[]      NOT NULL DEFAULT '{}',
   stripe_subscription_id TEXT,
   airtable_token       TEXT,
-  gamma_api_key        TEXT
+  gamma_api_key        TEXT,
+  slack_webhook_url    TEXT
 );
+
+-- If the table already exists, run this once in Neon SQL Editor:
+-- ALTER TABLE "castcal-auth" ADD COLUMN IF NOT EXISTS slack_webhook_url TEXT;

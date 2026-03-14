@@ -15,7 +15,7 @@ const ProfileInfo: React.FC = () => {
   const stripeSubscription = useStripeSubscription(user);
 
   const [airtableToken, setAirtableToken] = useState('');
-  const [gammaKey, setGammaKey] = useState('');
+  const [slackWebhookUrl, setSlackWebhookUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -30,7 +30,7 @@ const ProfileInfo: React.FC = () => {
         });
         const data = await res.json();
         setAirtableToken(data.airtable_token || '');
-        setGammaKey(data.gamma_api_key || '');
+        setSlackWebhookUrl(data.slack_webhook_url || '');
       } catch { /* ignore */ }
     };
     fetchIntegrations();
@@ -43,7 +43,7 @@ const ProfileInfo: React.FC = () => {
       await fetch(`${API_URL}/api/save-integrations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, airtableToken, gammaKey }),
+        body: JSON.stringify({ userId: user.id, airtableToken, slackWebhookUrl }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -109,20 +109,21 @@ const ProfileInfo: React.FC = () => {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
                 <Key className="w-3.5 h-3.5 text-violet-400" />
-                Gamma API Key
+                Slack Incoming Webhook URL
               </label>
               <input
                 type="password"
-                value={gammaKey}
-                onChange={(e) => setGammaKey(e.target.value)}
-                placeholder="gamma_XXXXXXXX"
+                value={slackWebhookUrl}
+                onChange={(e) => setSlackWebhookUrl(e.target.value)}
+                placeholder="https://hooks.slack.com/services/..."
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
               />
               <p className="text-xs text-white/25 mt-1.5">
-                Available on Gamma Pro+ plans at{' '}
-                <a href="https://gamma.app/settings/api" target="_blank" rel="noopener noreferrer" className="text-violet-400/70 hover:text-violet-400 inline-flex items-center gap-0.5">
-                  gamma.app/settings/api <Link2 className="w-3 h-3" />
+                Create at{' '}
+                <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer" className="text-violet-400/70 hover:text-violet-400 inline-flex items-center gap-0.5">
+                  api.slack.com/apps <Link2 className="w-3 h-3" />
                 </a>
+                {' '}→ Incoming Webhooks → Add New Webhook to Workspace
               </p>
             </div>
 
