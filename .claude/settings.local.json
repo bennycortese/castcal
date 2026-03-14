@@ -4,7 +4,8 @@
       "WebFetch(domain:www.greptile.com)",
       "WebFetch(domain:www.browserbase.com)",
       "WebFetch(domain:www.tryflint.com)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:trustmrr.com)"
     ]
   }
 }

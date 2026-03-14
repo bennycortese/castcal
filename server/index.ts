@@ -6,9 +6,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import Anthropic from '@anthropic-ai/sdk';
-import { clerkMiddleware, requireAuth, getAuth } from '@clerk/express';
+import { clerkMiddleware, getAuth } from '@clerk/express';
 import { SearchResponse } from '@notionhq/client/build/src/api-endpoints';
-import { createClient } from '@supabase/supabase-js';
+import { neon } from '@neondatabase/serverless';
 import Stripe from 'stripe';
 import { Response as FetchResponse } from 'node-fetch';
 
@@ -17,10 +17,7 @@ config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+const sql = neon(process.env.DATABASE_URL || '');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
@@ -28,30 +25,25 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // ─── Security middleware ─────────────────────────────────────────────────────
 
-// Helmet: sets secure HTTP headers (XSS protection, HSTS, no sniff, etc.)
 app.use(helmet({
-  crossOriginEmbedderPolicy: false, // needed for some embed scenarios
+  crossOriginEmbedderPolicy: false,
 }));
 
-// CORS: only allow requests from your frontend
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (server-to-server, curl) in dev, or if origin is allowed
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS blocked: ${origin}`));
   },
-  credentials: true, // allow cookies (Clerk session cookie)
+  credentials: true,
 }));
 
-app.use(express.json({ limit: '512kb' })); // cap request body size — prevents large payload DoS
+app.use(express.json({ limit: '512kb' }));
 
-// Clerk: verifies the session JWT from cookie or Authorization header on every request
 app.use(clerkMiddleware());
 
-// Rate limiters
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
@@ -59,8 +51,8 @@ const generalLimiter = rateLimit({
 });
 
 const claudeLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 5, // max 5 AI generations per minute per IP
+  windowMs: 60 * 1000,
+  max: 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Generation rate limit reached. Please wait a moment.' },
@@ -70,32 +62,25 @@ app.use(generalLimiter);
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 
-// Extract userId from the verified Clerk session — never trust req.body.userId
 const getUserId = (req: Request): string | null => {
   const { userId } = getAuth(req);
   return userId ?? null;
 };
 
-// Middleware that ensures the route is only accessible to authenticated users
-// and that any userId in the body matches the session (prevents forged requests)
 const authGuard = (req: Request, res: Response, next: NextFunction) => {
   const sessionUserId = getUserId(req);
   if (!sessionUserId) {
     return res.status(401).json({ error: 'Unauthorized: no active session' });
   }
-  // If the request body contains a userId, ensure it matches the session
   if (req.body?.userId && req.body.userId !== sessionUserId) {
     return res.status(403).json({ error: 'Forbidden: userId mismatch' });
   }
-  // Attach verified userId to request so downstream handlers can use it safely
   (req as any).verifiedUserId = sessionUserId;
   next();
 };
 
-// Input sanitizer — strip control chars and enforce max length
 const sanitizeString = (val: unknown, maxLen = 500_000): string => {
   if (typeof val !== 'string') return '';
-  // Remove null bytes and strip surrogate pairs
   return val.replace(/\0/g, '').slice(0, maxLen);
 };
 
@@ -149,15 +134,13 @@ app.post('/api/claude-content', claudeLimiter, authGuard, async (req: Request, r
   const content = sanitizeString(req.body.content, 100_000);
   if (!content) return res.status(400).json({ error: 'content is required' });
 
-  // Verify user has not exceeded their usage limit
   const userId = (req as any).verifiedUserId as string;
   try {
-    const { data: userData } = await supabase
-      .from('castcal-auth')
-      .select('current_usage, max_monthly_usage, stripe_subscription_id')
-      .eq('user_id', userId)
-      .single();
-
+    const rows = await sql`
+      SELECT current_usage, max_monthly_usage, stripe_subscription_id
+      FROM "castcal-auth" WHERE user_id = ${userId}
+    `;
+    const userData = rows[0];
     if (userData) {
       const limit = userData.stripe_subscription_id
         ? userData.max_monthly_usage * 50
@@ -166,7 +149,7 @@ app.post('/api/claude-content', claudeLimiter, authGuard, async (req: Request, r
         return res.status(429).json({ error: 'Monthly generation limit reached' });
       }
     }
-  } catch { /* non-fatal — proceed and let frontend handle */ }
+  } catch { /* non-fatal */ }
 
   try {
     const response = await anthropic.messages.create({
@@ -371,7 +354,7 @@ app.post('/api/push-gamma', authGuard, async (req: Request, res: Response) => {
   }
 });
 
-// ─── Supabase user management (all routes auth-guarded) ──────────────────────
+// ─── User management (Neon) ──────────────────────────────────────────────────
 
 app.post('/api/store-user-id', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
@@ -379,17 +362,14 @@ app.post('/api/store-user-id', authGuard, async (req: Request, res: Response) =>
   if (!notionAuthValue) return res.status(400).json({ error: 'notionAuthValue required' });
 
   try {
-    // Upsert so repeated Notion re-auth doesn't error
-    const { error } = await supabase.from('castcal-auth').upsert({
-      user_id: userId,
-      notion_auth: notionAuthValue,
-      current_usage: 0,
-      max_monthly_usage: 3,
-      total_usage: 0,
-      all_usage_times: [],
-    }, { onConflict: 'user_id', ignoreDuplicates: false });
-
-    if (error) throw new Error(error.message);
+    await sql`
+      INSERT INTO "castcal-auth"
+        (user_id, notion_auth, current_usage, max_monthly_usage, total_usage, all_usage_times, all_uploaded_content)
+      VALUES
+        (${userId}, ${notionAuthValue}, 0, 3, 0, '{}', '{}')
+      ON CONFLICT (user_id) DO UPDATE SET
+        notion_auth = ${notionAuthValue}
+    `;
     res.status(200).json({ message: 'User stored successfully' });
   } catch (error) {
     res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
@@ -399,20 +379,18 @@ app.post('/api/store-user-id', authGuard, async (req: Request, res: Response) =>
 app.post('/api/notion-auth', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
   try {
-    const { data, error } = await supabase.from('castcal-auth').select('notion_auth').eq('user_id', userId).single();
-    if (error) return res.status(500).json({ error: 'Failed to retrieve notion_auth' });
-    res.status(200).json({ notion_auth: data?.notion_auth || null });
+    const rows = await sql`SELECT notion_auth FROM "castcal-auth" WHERE user_id = ${userId}`;
+    res.status(200).json({ notion_auth: rows[0]?.notion_auth ?? null });
   } catch {
-    res.status(500).json({ error: 'Unexpected error' });
+    res.status(500).json({ error: 'Failed to retrieve notion_auth' });
   }
 });
 
 app.post('/api/retrieve-user-notion-auth', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
   try {
-    const { data, error } = await supabase.from('castcal-auth').select('notion_auth').eq('user_id', userId).single();
-    if (error) return res.status(500).json({ error: error.message });
-    res.status(200).json(data);
+    const rows = await sql`SELECT notion_auth FROM "castcal-auth" WHERE user_id = ${userId}`;
+    res.status(200).json(rows[0] ?? {});
   } catch {
     res.status(500).json({ error: 'Unexpected error' });
   }
@@ -421,33 +399,30 @@ app.post('/api/retrieve-user-notion-auth', authGuard, async (req: Request, res: 
 app.post('/api/notion-current-month', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
   try {
-    const { data, error } = await supabase.from('castcal-auth').select('current_usage').eq('user_id', userId).single();
-    if (error) return res.status(500).json({ error: 'Failed to retrieve current_usage' });
-    res.status(200).json({ current_usage: data?.current_usage });
+    const rows = await sql`SELECT current_usage FROM "castcal-auth" WHERE user_id = ${userId}`;
+    res.status(200).json({ current_usage: rows[0]?.current_usage ?? 0 });
   } catch {
-    res.status(500).json({ error: 'Unexpected error' });
+    res.status(500).json({ error: 'Failed to retrieve current_usage' });
   }
 });
 
 app.post('/api/notion-max-month', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
   try {
-    const { data, error } = await supabase.from('castcal-auth').select('max_monthly_usage').eq('user_id', userId).single();
-    if (error) return res.status(500).json({ error: 'Failed to retrieve max_monthly_usage' });
-    res.status(200).json({ max_monthly_usage: data?.max_monthly_usage });
+    const rows = await sql`SELECT max_monthly_usage FROM "castcal-auth" WHERE user_id = ${userId}`;
+    res.status(200).json({ max_monthly_usage: rows[0]?.max_monthly_usage ?? 3 });
   } catch {
-    res.status(500).json({ error: 'Unexpected error' });
+    res.status(500).json({ error: 'Failed to retrieve max_monthly_usage' });
   }
 });
 
 app.post('/api/stripe-user-subscription', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
   try {
-    const { data, error } = await supabase.from('castcal-auth').select('stripe_subscription_id').eq('user_id', userId).single();
-    if (error) return res.status(500).json({ error: 'Failed to retrieve subscription' });
-    res.status(200).json({ stripe_subscription_id: data?.stripe_subscription_id });
+    const rows = await sql`SELECT stripe_subscription_id FROM "castcal-auth" WHERE user_id = ${userId}`;
+    res.status(200).json({ stripe_subscription_id: rows[0]?.stripe_subscription_id ?? null });
   } catch {
-    res.status(500).json({ error: 'Unexpected error' });
+    res.status(500).json({ error: 'Failed to retrieve subscription' });
   }
 });
 
@@ -456,20 +431,14 @@ app.post('/api/increment-usage', authGuard, async (req: Request, res: Response) 
   const editorContent = sanitizeString(req.body.editorContent, 100_000);
 
   try {
-    const { data: current } = await supabase
-      .from('castcal-auth')
-      .select('current_usage, total_usage, all_usage_times, all_uploaded_content')
-      .eq('user_id', userId)
-      .single();
-
-    const { error } = await supabase.from('castcal-auth').update({
-      current_usage: (current?.current_usage || 0) + 1,
-      total_usage: (current?.total_usage || 0) + 1,
-      all_usage_times: [...(current?.all_usage_times || []), new Date().toISOString()],
-      all_uploaded_content: [...(current?.all_uploaded_content || []), editorContent.slice(0, 5000)],
-    }).eq('user_id', userId);
-
-    if (error) throw new Error(error.message);
+    await sql`
+      UPDATE "castcal-auth" SET
+        current_usage        = current_usage + 1,
+        total_usage          = total_usage + 1,
+        all_usage_times      = array_append(all_usage_times, ${new Date().toISOString()}),
+        all_uploaded_content = array_append(all_uploaded_content, ${editorContent.slice(0, 5000)})
+      WHERE user_id = ${userId}
+    `;
     res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
@@ -479,13 +448,11 @@ app.post('/api/increment-usage', authGuard, async (req: Request, res: Response) 
 app.post('/api/user-integrations', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
   try {
-    const { data, error } = await supabase
-      .from('castcal-auth')
-      .select('airtable_token, gamma_api_key')
-      .eq('user_id', userId)
-      .single();
-    if (error) return res.status(500).json({ error: error.message });
-    res.status(200).json({ airtable_token: data?.airtable_token || null, gamma_api_key: data?.gamma_api_key || null });
+    const rows = await sql`SELECT airtable_token, gamma_api_key FROM "castcal-auth" WHERE user_id = ${userId}`;
+    res.status(200).json({
+      airtable_token: rows[0]?.airtable_token ?? null,
+      gamma_api_key:  rows[0]?.gamma_api_key  ?? null,
+    });
   } catch {
     res.status(500).json({ error: 'Unexpected error' });
   }
@@ -493,14 +460,15 @@ app.post('/api/user-integrations', authGuard, async (req: Request, res: Response
 
 app.post('/api/save-integrations', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
-  const airtableToken = sanitizeString(req.body.airtableToken || '', 500);
-  const gammaKey = sanitizeString(req.body.gammaKey || '', 500);
+  const airtableToken = sanitizeString(req.body.airtableToken || '', 500) || null;
+  const gammaKey      = sanitizeString(req.body.gammaKey || '', 500) || null;
 
   try {
-    const { error } = await supabase.from('castcal-auth')
-      .update({ airtable_token: airtableToken || null, gamma_api_key: gammaKey || null })
-      .eq('user_id', userId);
-    if (error) throw new Error(error.message);
+    await sql`
+      UPDATE "castcal-auth"
+      SET airtable_token = ${airtableToken}, gamma_api_key = ${gammaKey}
+      WHERE user_id = ${userId}
+    `;
     res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
@@ -534,23 +502,20 @@ app.post('/api/checkout-success', authGuard, async (req: Request, res: Response)
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status !== 'paid') return res.status(400).json({ error: 'Payment not completed' });
+    if (session.metadata?.userId !== userId) return res.status(403).json({ error: 'Session does not belong to this user' });
 
-    // Ensure the session's userId matches the authenticated user
-    if (session.metadata?.userId !== userId) {
-      return res.status(403).json({ error: 'Session does not belong to this user' });
-    }
-
-    const { error } = await supabase.from('castcal-auth')
-      .update({ stripe_subscription_id: session.subscription })
-      .eq('user_id', userId);
-    if (error) throw new Error(error.message);
+    await sql`
+      UPDATE "castcal-auth"
+      SET stripe_subscription_id = ${session.subscription as string}
+      WHERE user_id = ${userId}
+    `;
     res.status(200).json({ result: true });
   } catch (error) {
     res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
-// ─── Notion OAuth callback (public — no auth guard needed) ───────────────────
+// ─── Notion OAuth callback ───────────────────────────────────────────────────
 
 app.get('/oauth/callback', rateLimit({ windowMs: 60_000, max: 20 }), async (req: Request, res: Response) => {
   const code = req.query.code;
