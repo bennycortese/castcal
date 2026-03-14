@@ -39,14 +39,42 @@ const DESTINATIONS: Destination[] = [
     description: 'Post summary to a channel',
     requiresToken: 'Add Slack webhook in Profile',
   },
+  {
+    id: 'hubspot',
+    name: 'HubSpot',
+    icon: '⬡',
+    description: 'Tasks in your CRM',
+    requiresToken: 'Add HubSpot token in Profile',
+  },
+  {
+    id: 'monday',
+    name: 'Monday.com',
+    icon: '▣',
+    description: 'Items in your board',
+    requiresToken: 'Add Monday token + board ID in Profile',
+  },
+  {
+    id: 'trello',
+    name: 'Trello',
+    icon: '☰',
+    description: 'Cards in a new board',
+    requiresToken: 'Add Trello API key + token in Profile',
+  },
 ];
 
 interface DestinationSelectorProps {
   airtableToken: string | null;
   slackWebhookUrl: string | null;
+  hubspotToken: string | null;
+  mondayToken: string | null;
+  mondayBoardId: string | null;
+  trelloApiKey: string | null;
+  trelloToken: string | null;
 }
 
-const DestinationSelector: React.FC<DestinationSelectorProps> = ({ airtableToken, slackWebhookUrl }) => {
+const DestinationSelector: React.FC<DestinationSelectorProps> = ({
+  airtableToken, slackWebhookUrl, hubspotToken, mondayToken, mondayBoardId, trelloApiKey, trelloToken,
+}) => {
   const [selected, setSelected] = useAtom(selectedDestinationsAtom);
 
   const toggle = (id: string) => {
@@ -66,6 +94,9 @@ const DestinationSelector: React.FC<DestinationSelectorProps> = ({ airtableToken
     if (d.comingSoon) return true;
     if (d.id === 'airtable' && !airtableToken) return true;
     if (d.id === 'slack' && !slackWebhookUrl) return true;
+    if (d.id === 'hubspot' && !hubspotToken) return true;
+    if (d.id === 'monday' && (!mondayToken || !mondayBoardId)) return true;
+    if (d.id === 'trello' && (!trelloApiKey || !trelloToken)) return true;
     return false;
   };
 

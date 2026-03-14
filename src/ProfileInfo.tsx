@@ -16,6 +16,11 @@ const ProfileInfo: React.FC = () => {
 
   const [airtableToken, setAirtableToken] = useState('');
   const [slackWebhookUrl, setSlackWebhookUrl] = useState('');
+  const [hubspotToken, setHubspotToken] = useState('');
+  const [mondayToken, setMondayToken] = useState('');
+  const [mondayBoardId, setMondayBoardId] = useState('');
+  const [trelloApiKey, setTrelloApiKey] = useState('');
+  const [trelloToken, setTrelloToken] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -31,6 +36,11 @@ const ProfileInfo: React.FC = () => {
         const data = await res.json();
         setAirtableToken(data.airtable_token || '');
         setSlackWebhookUrl(data.slack_webhook_url || '');
+        setHubspotToken(data.hubspot_token || '');
+        setMondayToken(data.monday_token || '');
+        setMondayBoardId(data.monday_board_id || '');
+        setTrelloApiKey(data.trello_api_key || '');
+        setTrelloToken(data.trello_token || '');
       } catch { /* ignore */ }
     };
     fetchIntegrations();
@@ -43,7 +53,7 @@ const ProfileInfo: React.FC = () => {
       await fetch(`${API_URL}/api/save-integrations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, airtableToken, slackWebhookUrl }),
+        body: JSON.stringify({ userId: user.id, airtableToken, slackWebhookUrl, hubspotToken, mondayToken, mondayBoardId, trelloApiKey, trelloToken }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -125,6 +135,97 @@ const ProfileInfo: React.FC = () => {
                 </a>
                 {' '}→ Incoming Webhooks → Add New Webhook to Workspace
               </p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
+                <Key className="w-3.5 h-3.5 text-violet-400" />
+                HubSpot Private App Token
+              </label>
+              <input
+                type="password"
+                value={hubspotToken}
+                onChange={(e) => setHubspotToken(e.target.value)}
+                placeholder="pat-na1-XXXXXXXX"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
+              />
+              <p className="text-xs text-white/25 mt-1.5">
+                Create at{' '}
+                <a href="https://app.hubspot.com/private-apps" target="_blank" rel="noopener noreferrer" className="text-violet-400/70 hover:text-violet-400 inline-flex items-center gap-0.5">
+                  app.hubspot.com/private-apps <Link2 className="w-3 h-3" />
+                </a>
+                {' '}— needs <code className="text-xs bg-white/10 px-1 rounded">crm.objects.tasks:write</code>
+              </p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
+                <Key className="w-3.5 h-3.5 text-violet-400" />
+                Monday.com API Token
+              </label>
+              <input
+                type="password"
+                value={mondayToken}
+                onChange={(e) => setMondayToken(e.target.value)}
+                placeholder="eyJhbGci..."
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
+              />
+              <p className="text-xs text-white/25 mt-1.5">
+                Find at{' '}
+                <a href="https://monday.com/settings/profile/developer" target="_blank" rel="noopener noreferrer" className="text-violet-400/70 hover:text-violet-400 inline-flex items-center gap-0.5">
+                  monday.com → Profile → Developer <Link2 className="w-3 h-3" />
+                </a>
+              </p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
+                <Key className="w-3.5 h-3.5 text-violet-400" />
+                Monday.com Board ID
+              </label>
+              <input
+                type="text"
+                value={mondayBoardId}
+                onChange={(e) => setMondayBoardId(e.target.value)}
+                placeholder="1234567890"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
+              />
+              <p className="text-xs text-white/25 mt-1.5">Open your board → copy the number from the URL</p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
+                <Key className="w-3.5 h-3.5 text-violet-400" />
+                Trello API Key
+              </label>
+              <input
+                type="text"
+                value={trelloApiKey}
+                onChange={(e) => setTrelloApiKey(e.target.value)}
+                placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
+              />
+              <p className="text-xs text-white/25 mt-1.5">
+                Get at{' '}
+                <a href="https://trello.com/power-ups/admin" target="_blank" rel="noopener noreferrer" className="text-violet-400/70 hover:text-violet-400 inline-flex items-center gap-0.5">
+                  trello.com/power-ups/admin <Link2 className="w-3 h-3" />
+                </a>
+              </p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
+                <Key className="w-3.5 h-3.5 text-violet-400" />
+                Trello Token
+              </label>
+              <input
+                type="password"
+                value={trelloToken}
+                onChange={(e) => setTrelloToken(e.target.value)}
+                placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
+              />
+              <p className="text-xs text-white/25 mt-1.5">After getting your API key, click "Token" on the same page to authorize</p>
             </div>
 
             <Button

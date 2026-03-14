@@ -137,6 +137,11 @@ const BriefInput: React.FC = () => {
               <DestinationSelector
                 airtableToken={integrations.airtable_token}
                 slackWebhookUrl={integrations.slack_webhook_url}
+                hubspotToken={integrations.hubspot_token}
+                mondayToken={integrations.monday_token}
+                mondayBoardId={integrations.monday_board_id}
+                trelloApiKey={integrations.trello_api_key}
+                trelloToken={integrations.trello_token}
               />
             </div>
 
@@ -147,6 +152,11 @@ const BriefInput: React.FC = () => {
               userId={userId}
               airtableToken={integrations.airtable_token}
               slackWebhookUrl={integrations.slack_webhook_url}
+              hubspotToken={integrations.hubspot_token}
+              mondayToken={integrations.monday_token}
+              mondayBoardId={integrations.monday_board_id}
+              trelloApiKey={integrations.trello_api_key}
+              trelloToken={integrations.trello_token}
             />
 
             {/* Status */}

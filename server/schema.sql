@@ -11,8 +11,18 @@ CREATE TABLE IF NOT EXISTS "castcal-auth" (
   stripe_subscription_id TEXT,
   airtable_token       TEXT,
   gamma_api_key        TEXT,
-  slack_webhook_url    TEXT
+  slack_webhook_url    TEXT,
+  hubspot_token        TEXT,
+  monday_token         TEXT,
+  monday_board_id      TEXT,
+  trello_api_key       TEXT,
+  trello_token         TEXT
 );
 
--- If the table already exists, run this once in Neon SQL Editor:
+-- If the table already exists, run these once in Neon SQL Editor:
 -- ALTER TABLE "castcal-auth" ADD COLUMN IF NOT EXISTS slack_webhook_url TEXT;
+-- ALTER TABLE "castcal-auth" ADD COLUMN IF NOT EXISTS hubspot_token TEXT;
+-- ALTER TABLE "castcal-auth" ADD COLUMN IF NOT EXISTS monday_token TEXT;
+-- ALTER TABLE "castcal-auth" ADD COLUMN IF NOT EXISTS monday_board_id TEXT;
+-- ALTER TABLE "castcal-auth" ADD COLUMN IF NOT EXISTS trello_api_key TEXT;
+-- ALTER TABLE "castcal-auth" ADD COLUMN IF NOT EXISTS trello_token TEXT;

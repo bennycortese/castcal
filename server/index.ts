@@ -347,6 +347,174 @@ app.post('/api/push-slack', authGuard, async (req: Request, res: Response) => {
   }
 });
 
+// ─── HubSpot push ────────────────────────────────────────────────────────────
+
+app.post('/api/push-hubspot', authGuard, async (req: Request, res: Response) => {
+  const { hubspotToken, title, items } = req.body;
+  if (!hubspotToken || !items) return res.status(400).json({ error: 'hubspotToken and items required' });
+  if (!Array.isArray(items) || items.length > 500) return res.status(400).json({ error: 'Invalid items array' });
+
+  const token = sanitizeString(hubspotToken, 500);
+  const calTitle = sanitizeString(title, 100);
+
+  try {
+    const accountRes = await fetch('https://api.hubapi.com/account-info/v3/details', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const accountData = accountRes.ok ? await accountRes.json() as any : null;
+    const portalId = accountData?.portalId;
+
+    const inputs = items.map((item: any) => ({
+      properties: {
+        hs_task_subject: sanitizeString(`${item.emoji} ${item.title}`, 500),
+        hs_task_body: [
+          `Calendar: ${calTitle}`,
+          `Channel: ${item.channel} | Format: ${item.format} | Date: ${item.publish_date}`,
+          '',
+          `Hook: ${sanitizeString(item.hook, 1000)}`,
+          '',
+          sanitizeString(item.description, 5000),
+        ].join('\n'),
+        hs_timestamp: item.publish_date && item.publish_date !== 'NONE'
+          ? String(new Date(item.publish_date).getTime())
+          : String(Date.now()),
+        hs_task_status: 'NOT_STARTED',
+        hs_task_type: 'TODO',
+      },
+    }));
+
+    const batchRes = await fetch('https://api.hubapi.com/crm/v3/objects/tasks/batch/create', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inputs }),
+    });
+
+    if (!batchRes.ok) {
+      const err = await batchRes.json() as any;
+      throw new Error(err.message || 'HubSpot task creation failed');
+    }
+
+    const link = portalId ? `https://app.hubspot.com/tasks/${portalId}` : 'https://app.hubspot.com/tasks';
+    res.status(200).json({ link });
+  } catch (error) {
+    console.error('HubSpot error:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+// ─── Monday.com push ─────────────────────────────────────────────────────────
+
+app.post('/api/push-monday', authGuard, async (req: Request, res: Response) => {
+  const { mondayToken, mondayBoardId, items } = req.body;
+  if (!mondayToken || !mondayBoardId || !items) return res.status(400).json({ error: 'mondayToken, mondayBoardId, and items required' });
+  if (!Array.isArray(items) || items.length > 500) return res.status(400).json({ error: 'Invalid items array' });
+
+  const token = sanitizeString(mondayToken, 500);
+  const boardId = parseInt(sanitizeString(mondayBoardId, 50), 10);
+  if (isNaN(boardId)) return res.status(400).json({ error: 'Invalid board ID — must be a number' });
+
+  const escapeGql = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+
+  try {
+    const createMutation = `mutation {\n${
+      items.map((item: any, i: number) =>
+        `  item${i}: create_item(board_id: ${boardId}, item_name: "${escapeGql(sanitizeString(`${item.emoji} ${item.title}`, 200))}") { id }`
+      ).join('\n')
+    }\n}`;
+
+    const createRes = await fetch('https://api.monday.com/v2', {
+      method: 'POST',
+      headers: { Authorization: token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: createMutation }),
+    });
+
+    if (!createRes.ok) throw new Error('Monday.com item creation failed');
+    const createData = await createRes.json() as any;
+    if (createData.errors) throw new Error(createData.errors[0]?.message || 'Monday.com error');
+
+    const itemIds = items.map((_: any, i: number) => createData.data?.[`item${i}`]?.id).filter(Boolean);
+
+    if (itemIds.length > 0) {
+      const updateMutation = `mutation {\n${
+        items.slice(0, itemIds.length).map((item: any, i: number) => {
+          const body = escapeGql([
+            `Channel: ${item.channel} | Format: ${item.format} | Date: ${item.publish_date}`,
+            '',
+            `Hook: ${sanitizeString(item.hook, 500)}`,
+            '',
+            sanitizeString(item.description, 2000),
+          ].join('\n'));
+          return `  update${i}: create_update(item_id: ${itemIds[i]}, body: "${body}") { id }`;
+        }).join('\n')
+      }\n}`;
+
+      await fetch('https://api.monday.com/v2', {
+        method: 'POST',
+        headers: { Authorization: token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: updateMutation }),
+      });
+    }
+
+    res.status(200).json({ link: `https://monday.com/boards/${boardId}` });
+  } catch (error) {
+    console.error('Monday.com error:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+// ─── Trello push ──────────────────────────────────────────────────────────────
+
+app.post('/api/push-trello', authGuard, async (req: Request, res: Response) => {
+  const { trelloApiKey, trelloToken, title, items } = req.body;
+  if (!trelloApiKey || !trelloToken || !items) return res.status(400).json({ error: 'trelloApiKey, trelloToken, and items required' });
+  if (!Array.isArray(items) || items.length > 500) return res.status(400).json({ error: 'Invalid items array' });
+
+  const key = sanitizeString(trelloApiKey, 100);
+  const token = sanitizeString(trelloToken, 200);
+  const calTitle = sanitizeString(title, 100);
+
+  const trelloFetch = (path: string, method: string, body?: object) =>
+    fetch(`https://api.trello.com/1${path}?key=${encodeURIComponent(key)}&token=${encodeURIComponent(token)}`, {
+      method,
+      headers: body ? { 'Content-Type': 'application/json' } : {},
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+  try {
+    const boardRes = await trelloFetch('/boards/', 'POST', {
+      name: calTitle,
+      defaultLists: false,
+      prefs_permissionLevel: 'private',
+    });
+    if (!boardRes.ok) throw new Error('Failed to create Trello board');
+    const board = await boardRes.json() as any;
+
+    const listRes = await trelloFetch('/lists', 'POST', { name: 'Content Calendar', idBoard: board.id });
+    if (!listRes.ok) throw new Error('Failed to create Trello list');
+    const list = await listRes.json() as any;
+
+    for (const item of items) {
+      await trelloFetch('/cards', 'POST', {
+        idList: list.id,
+        name: sanitizeString(`${item.emoji} ${item.title}`, 200),
+        desc: [
+          `**Channel:** ${item.channel} | **Format:** ${item.format} | **Date:** ${item.publish_date}`,
+          '',
+          `**Hook:** ${sanitizeString(item.hook, 500)}`,
+          '',
+          sanitizeString(item.description, 2000),
+        ].join('\n'),
+        due: item.publish_date && item.publish_date !== 'NONE' ? new Date(item.publish_date).toISOString() : null,
+      });
+    }
+
+    res.status(200).json({ link: board.shortUrl || `https://trello.com/b/${board.shortLink}` });
+  } catch (error) {
+    console.error('Trello error:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
 // ─── Gamma push ──────────────────────────────────────────────────────────────
 
 app.post('/api/push-gamma', authGuard, async (req: Request, res: Response) => {
@@ -484,10 +652,15 @@ app.post('/api/increment-usage', authGuard, async (req: Request, res: Response) 
 app.post('/api/user-integrations', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
   try {
-    const rows = await sql`SELECT airtable_token, slack_webhook_url FROM "castcal-auth" WHERE user_id = ${userId}`;
+    const rows = await sql`SELECT airtable_token, slack_webhook_url, hubspot_token, monday_token, monday_board_id, trello_api_key, trello_token FROM "castcal-auth" WHERE user_id = ${userId}`;
     res.status(200).json({
       airtable_token:    rows[0]?.airtable_token    ?? null,
       slack_webhook_url: rows[0]?.slack_webhook_url ?? null,
+      hubspot_token:     rows[0]?.hubspot_token     ?? null,
+      monday_token:      rows[0]?.monday_token      ?? null,
+      monday_board_id:   rows[0]?.monday_board_id   ?? null,
+      trello_api_key:    rows[0]?.trello_api_key    ?? null,
+      trello_token:      rows[0]?.trello_token      ?? null,
     });
   } catch {
     res.status(500).json({ error: 'Unexpected error' });
@@ -496,13 +669,24 @@ app.post('/api/user-integrations', authGuard, async (req: Request, res: Response
 
 app.post('/api/save-integrations', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
-  const airtableToken    = sanitizeString(req.body.airtableToken || '', 500) || null;
-  const slackWebhookUrl  = sanitizeString(req.body.slackWebhookUrl || '', 500) || null;
+  const airtableToken   = sanitizeString(req.body.airtableToken   || '', 500) || null;
+  const slackWebhookUrl = sanitizeString(req.body.slackWebhookUrl || '', 500) || null;
+  const hubspotToken    = sanitizeString(req.body.hubspotToken    || '', 500) || null;
+  const mondayToken     = sanitizeString(req.body.mondayToken     || '', 500) || null;
+  const mondayBoardId   = sanitizeString(req.body.mondayBoardId   || '', 50)  || null;
+  const trelloApiKey    = sanitizeString(req.body.trelloApiKey    || '', 100) || null;
+  const trelloToken     = sanitizeString(req.body.trelloToken     || '', 200) || null;
 
   try {
     await sql`
       UPDATE "castcal-auth"
-      SET airtable_token = ${airtableToken}, slack_webhook_url = ${slackWebhookUrl}
+      SET airtable_token = ${airtableToken},
+          slack_webhook_url = ${slackWebhookUrl},
+          hubspot_token = ${hubspotToken},
+          monday_token = ${mondayToken},
+          monday_board_id = ${mondayBoardId},
+          trello_api_key = ${trelloApiKey},
+          trello_token = ${trelloToken}
       WHERE user_id = ${userId}
     `;
     res.status(200).json({ success: true });

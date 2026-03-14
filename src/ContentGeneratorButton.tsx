@@ -26,6 +26,11 @@ interface ContentGeneratorButtonProps {
   userId: string;
   airtableToken: string | null;
   slackWebhookUrl: string | null;
+  hubspotToken: string | null;
+  mondayToken: string | null;
+  mondayBoardId: string | null;
+  trelloApiKey: string | null;
+  trelloToken: string | null;
 }
 
 const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
@@ -35,6 +40,11 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
   userId,
   airtableToken,
   slackWebhookUrl,
+  hubspotToken,
+  mondayToken,
+  mondayBoardId,
+  trelloApiKey,
+  trelloToken,
 }) => {
   const [generatingState, setGeneratingState] = useAtom(generatingStateAtom);
   const setExportResults = useSetAtom(exportResultsAtom);
@@ -203,6 +213,51 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
     }
   };
 
+  const pushToHubSpot = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
+    const headers = await authHeaders();
+    try {
+      const res = await fetch(`${API_URL}/api/push-hubspot`, {
+        method: 'POST', headers, credentials: 'include',
+        body: JSON.stringify({ hubspotToken, title, items }),
+      });
+      if (!res.ok) throw new Error('HubSpot push failed');
+      const data = await res.json();
+      return { destination: 'hubspot', success: true, link: data.link };
+    } catch (err) {
+      return { destination: 'hubspot', success: false, error: String(err) };
+    }
+  };
+
+  const pushToMonday = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
+    const headers = await authHeaders();
+    try {
+      const res = await fetch(`${API_URL}/api/push-monday`, {
+        method: 'POST', headers, credentials: 'include',
+        body: JSON.stringify({ mondayToken, mondayBoardId, title, items }),
+      });
+      if (!res.ok) throw new Error('Monday.com push failed');
+      const data = await res.json();
+      return { destination: 'monday', success: true, link: data.link };
+    } catch (err) {
+      return { destination: 'monday', success: false, error: String(err) };
+    }
+  };
+
+  const pushToTrello = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
+    const headers = await authHeaders();
+    try {
+      const res = await fetch(`${API_URL}/api/push-trello`, {
+        method: 'POST', headers, credentials: 'include',
+        body: JSON.stringify({ trelloApiKey, trelloToken, title, items }),
+      });
+      if (!res.ok) throw new Error('Trello push failed');
+      const data = await res.json();
+      return { destination: 'trello', success: true, link: data.link };
+    } catch (err) {
+      return { destination: 'trello', success: false, error: String(err) };
+    }
+  };
+
   const incrementUsage = async () => {
     const headers = await authHeaders();
     await fetch(`${API_URL}/api/increment-usage`, {
@@ -231,6 +286,9 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
       if (selectedDestinations.has('airtable') && airtableToken) results.push(await pushToAirtable(calendar_title, items));
       if (selectedDestinations.has('csv')) results.push(pushToCSV(calendar_title, items));
       if (selectedDestinations.has('slack') && slackWebhookUrl) results.push(await pushToSlack(calendar_title, items));
+      if (selectedDestinations.has('hubspot') && hubspotToken) results.push(await pushToHubSpot(calendar_title, items));
+      if (selectedDestinations.has('monday') && mondayToken && mondayBoardId) results.push(await pushToMonday(calendar_title, items));
+      if (selectedDestinations.has('trello') && trelloApiKey && trelloToken) results.push(await pushToTrello(calendar_title, items));
 
       setExportResults(results);
       await incrementUsage();
