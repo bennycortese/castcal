@@ -13,7 +13,7 @@ const RegistrationPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-white mb-2">Create your account</h2>
             <p className="text-white/40">Start generating content calendars in minutes.</p>
           </div>
-          <SignUp path="/login" routing="path" signInUrl="/sign-in" />
+          <SignUp routing="hash" signInUrl="/sign-in" />
         </div>
       </section>
       <Footer />

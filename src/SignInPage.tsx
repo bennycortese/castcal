@@ -13,8 +13,7 @@ const SignInPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-white mb-2">Welcome back</h2>
             <p className="text-white/40">Sign in to your Castcal account.</p>
           </div>
-          <SignIn path="/sign-in" routing="path" signUpUrl="/login" fallbackRedirectUrl="/create" />
-          <SignIn path="/login/sso-callback" routing="path" signUpUrl="/login" fallbackRedirectUrl="/create" />
+          <SignIn routing="hash" signUpUrl="/login" fallbackRedirectUrl="/create" />
         </div>
       </section>
       <Footer />
