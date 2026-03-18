@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 import { Button } from './@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useUser } from '@clerk/react';
-import { useNotionAuth, useStripeSubscription } from './hooks';
+import { useStripeSubscription } from './hooks';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -15,7 +15,6 @@ const PricingCard: React.FC<{
   highlighted: boolean;
 }> = ({ title, price, description, features, highlighted }) => {
   const { user } = useUser();
-  const notionAuth = useNotionAuth(user);
   const stripeSubscription = useStripeSubscription(user);
 
   const handleCheckout = async () => {
@@ -65,7 +64,7 @@ const PricingCard: React.FC<{
       {highlighted ? (
         isActive ? (
           <Button variant="outline" disabled className="w-full opacity-60">Active subscription</Button>
-        ) : user && notionAuth ? (
+        ) : user ? (
           <Button variant="primary" className="w-full" onClick={handleCheckout}>Subscribe now</Button>
         ) : (
           <Link to="/login" className="w-full">
@@ -73,7 +72,7 @@ const PricingCard: React.FC<{
           </Link>
         )
       ) : (
-        <Link to={(!user || !notionAuth) ? '/login' : '/create'} className="w-full">
+        <Link to={user ? '/create' : '/login'} className="w-full">
           <Button variant="outline" className="w-full">Start free</Button>
         </Link>
       )}
@@ -96,7 +95,7 @@ const Pricing: React.FC = () => {
             title="Free"
             price="$0"
             description="Try Castcal with no commitment."
-            features={['3 calendar exports per month', 'Notion export', 'PDF & DOCX upload', 'Claude Sonnet generation']}
+            features={['3 calendar exports per month', 'All destinations', 'PDF & DOCX upload', 'Claude Sonnet generation']}
             highlighted={false}
           />
           <PricingCard
@@ -105,7 +104,7 @@ const Pricing: React.FC = () => {
             description="For agencies running multiple clients."
             features={[
               'Unlimited exports per month',
-              'Notion + Airtable + Gamma',
+              'Airtable, Google Sheets, Slack, HubSpot, Monday.com, Trello',
               'Priority generation',
               'PDF & DOCX upload',
               'Multi-destination in one click',

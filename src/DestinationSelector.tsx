@@ -14,12 +14,6 @@ type Destination = {
 
 const DESTINATIONS: Destination[] = [
   {
-    id: 'notion',
-    name: 'Notion',
-    icon: '𝒩',
-    description: 'Database in your connected workspace',
-  },
-  {
     id: 'airtable',
     name: 'Airtable',
     icon: '⬡',

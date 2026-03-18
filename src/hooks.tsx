@@ -2,30 +2,6 @@ import { useEffect, useState } from 'react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-export const useNotionAuth = (user: any) => {
-  const [notionAuth, setNotionAuth] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetch_ = async () => {
-      if (!user) return;
-      try {
-        const res = await fetch(`${API_URL}/api/notion-auth`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id }),
-        });
-        const { notion_auth } = await res.json();
-        setNotionAuth(notion_auth);
-      } catch {
-        setNotionAuth(null);
-      }
-    };
-    fetch_();
-  }, [user]);
-
-  return notionAuth;
-};
-
 export const useCurrentMonthCount = (user: any) => {
   const [count, setCount] = useState<number | null>(null);
 

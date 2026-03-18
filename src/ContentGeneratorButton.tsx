@@ -21,9 +21,6 @@ interface ContentItem {
 
 interface ContentGeneratorButtonProps {
   editorContent: string;
-  notionAuth: string;
-  selectedPageId: string;
-  userId: string;
   airtableToken: string | null;
   slackWebhookUrl: string | null;
   hubspotToken: string | null;
@@ -35,9 +32,6 @@ interface ContentGeneratorButtonProps {
 
 const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
   editorContent,
-  notionAuth,
-  selectedPageId,
-  userId,
   airtableToken,
   slackWebhookUrl,
   hubspotToken,
@@ -55,7 +49,6 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
   const stripeSubscription = useStripeSubscription(user);
 
   const getToken = () => {
-    // The Clerk session token is sent via cookie automatically; we retrieve it here for the Authorization header
     return (window as any).__clerk?.session?.getToken?.() as Promise<string | null> | undefined;
   };
 
@@ -63,7 +56,7 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
     try {
       const token = await getToken();
       if (token) return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
-    } catch { /* fallback to no auth header — server will still verify cookie */ }
+    } catch { }
     return { 'Content-Type': 'application/json' };
   };
 
@@ -77,84 +70,6 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
     });
     if (!res.ok) throw new Error('Failed to generate content');
     return res.json();
-  };
-
-  const pushToNotion = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
-    const headers = await authHeaders();
-    try {
-      const dbRes = await fetch(`${API_URL}/api/create-database`, {
-        method: 'POST',
-        headers,
-        credentials: 'include',
-        body: JSON.stringify({
-          notionAuth,
-          parentPageId: selectedPageId,
-          databaseTitle: title,
-          properties: {
-            Name: { title: {} },
-            Channel: {
-              select: {
-                options: [
-                  { name: 'Instagram', color: 'pink' }, { name: 'LinkedIn', color: 'blue' },
-                  { name: 'X', color: 'gray' }, { name: 'YouTube', color: 'red' },
-                  { name: 'Newsletter', color: 'yellow' }, { name: 'Blog', color: 'green' },
-                ],
-              },
-            },
-            'Publish Date': { date: {} },
-            Status: {
-              select: {
-                options: [
-                  { name: 'Idea', color: 'gray' }, { name: 'Draft', color: 'yellow' },
-                  { name: 'In Review', color: 'blue' }, { name: 'Scheduled', color: 'purple' },
-                  { name: 'Published', color: 'green' },
-                ],
-              },
-            },
-            Format: {
-              select: {
-                options: [
-                  { name: 'Carousel', color: 'orange' }, { name: 'Reel', color: 'pink' },
-                  { name: 'Thread', color: 'blue' }, { name: 'Article', color: 'green' },
-                  { name: 'Video', color: 'red' }, { name: 'Email', color: 'yellow' },
-                ],
-              },
-            },
-            Hook: { rich_text: {} },
-          },
-        }),
-      });
-      const { databaseResponse } = await dbRes.json();
-      const dbId = databaseResponse.id;
-
-      for (const item of items) {
-        const props: any = {
-          Name: { title: [{ type: 'text', text: { content: `${item.emoji} ${item.title}` } }] },
-          Channel: { select: { name: item.channel } },
-          Status: { select: { name: item.status } },
-          Format: { select: { name: item.format } },
-          Hook: { rich_text: [{ type: 'text', text: { content: item.hook } }] },
-        };
-        if (item.publish_date && item.publish_date !== 'NONE') {
-          props['Publish Date'] = { date: { start: item.publish_date } };
-        }
-        await fetch(`${API_URL}/api/add-page`, {
-          method: 'POST',
-          headers,
-          credentials: 'include',
-          body: JSON.stringify({
-            notionAuth, databaseId: dbId,
-            icon: { type: 'emoji', emoji: item.emoji },
-            pageProperties: props,
-            children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: item.description } }] } }],
-          }),
-        });
-      }
-
-      return { destination: 'notion', success: true, link: 'https://notion.so' };
-    } catch (err) {
-      return { destination: 'notion', success: false, error: String(err) };
-    }
   };
 
   const pushToAirtable = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
@@ -282,7 +197,6 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
       const { calendar_title, items } = await fetchClaudeContent(editorContent);
       const results: ExportResult[] = [];
 
-      if (selectedDestinations.has('notion') && notionAuth && selectedPageId) results.push(await pushToNotion(calendar_title, items));
       if (selectedDestinations.has('airtable') && airtableToken) results.push(await pushToAirtable(calendar_title, items));
       if (selectedDestinations.has('csv')) results.push(pushToCSV(calendar_title, items));
       if (selectedDestinations.has('slack') && slackWebhookUrl) results.push(await pushToSlack(calendar_title, items));

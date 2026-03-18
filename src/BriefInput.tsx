@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { NavBar } from './Navbar';
 import { Footer } from './Footer';
 import { useUser } from '@clerk/react';
-import {
-  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
-} from './@/components/ui/select';
 import LexicalEditor from './LexicalEditor';
 import { editorContentAtom, generatingStateAtom, exportResultsAtom } from './atoms';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -15,62 +12,14 @@ import DocxUploadButton from './DocxUploadButton';
 import { useUserIntegrations } from './hooks';
 import { CheckCircle, XCircle, ExternalLink, AlertCircle } from 'lucide-react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
-interface NotionPage {
-  id: string;
-  parent: { type: string };
-  properties: { title: { title: { text: { content: string } }[] } };
-  title?: { text: { content: string } }[];
-}
-
 const BriefInput: React.FC = () => {
   const { user } = useUser();
-  const [notionAuth, setNotionAuth] = useState('');
-  const [userId, setUserId] = useState('');
-  const [pages, setPages] = useState<NotionPage[]>([]);
-  const [selectedPage, setSelectedPage] = useState<NotionPage | null>(null);
   const [, setGetEditorText] = useState<() => string>(() => '');
   const editorContent = useAtomValue(editorContentAtom);
   const generatingState = useAtomValue(generatingStateAtom);
   const setGeneratingState = useSetAtom(generatingStateAtom);
   const exportResults = useAtomValue(exportResultsAtom);
   const integrations = useUserIntegrations(user);
-
-  useEffect(() => {
-    const fetchAuth = async () => {
-      if (!user) return;
-      try {
-        const res = await fetch(`${API_URL}/api/retrieve-user-notion-auth`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id }),
-        });
-        const data = await res.json();
-        setNotionAuth(data?.notion_auth || '');
-        setUserId(user.id);
-      } catch { }
-    };
-    fetchAuth();
-  }, [user]);
-
-  useEffect(() => {
-    if (!notionAuth) return;
-    const fetchPages = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/list-pages`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notionToken: notionAuth }),
-        });
-        const data = await res.json();
-        setPages(data.results || []);
-      } catch { }
-    };
-    fetchPages();
-  }, [notionAuth]);
-
-  const workspacePages = pages.filter((p) => p?.parent?.type === 'workspace');
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -100,35 +49,6 @@ const BriefInput: React.FC = () => {
                 </p>
               )}
             </div>
-
-            {/* Notion page selector */}
-            <div className="glass-card rounded-xl p-5 flex flex-col gap-3">
-              <p className="text-sm font-semibold text-white/60">Notion destination page</p>
-              {workspacePages.length > 0 ? (
-                <Select onValueChange={(id) => setSelectedPage(pages.find((p) => p.id === id) || null)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a workspace page" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Workspace pages</SelectLabel>
-                      {workspacePages.map((page) => (
-                        <SelectItem key={page.id} value={page.id}>
-                          {page?.properties?.title?.title?.[0]?.text?.content ||
-                            (page as any)?.title?.[0]?.text?.content ||
-                            'Untitled'}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="flex items-center gap-2.5 text-sm text-white/30">
-                  <div className="w-4 h-4 border border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin flex-shrink-0" />
-                  Loading pages...
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Right: Destinations + Generate */}
@@ -147,9 +67,6 @@ const BriefInput: React.FC = () => {
 
             <ContentGeneratorButton
               editorContent={editorContent}
-              notionAuth={notionAuth}
-              selectedPageId={selectedPage?.id || ''}
-              userId={userId}
               airtableToken={integrations.airtable_token}
               slackWebhookUrl={integrations.slack_webhook_url}
               hubspotToken={integrations.hubspot_token}
@@ -159,7 +76,6 @@ const BriefInput: React.FC = () => {
               trelloToken={integrations.trello_token}
             />
 
-            {/* Status */}
             {generatingState === 'limit_exceeded' && (
               <div className="flex items-start gap-2.5 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-sm text-yellow-300">
                 <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -173,7 +89,6 @@ const BriefInput: React.FC = () => {
               </div>
             )}
 
-            {/* Export results */}
             {exportResults.length > 0 && (
               <div className="flex flex-col gap-2">
                 <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Results</p>

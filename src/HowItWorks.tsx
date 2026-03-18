@@ -4,7 +4,7 @@ const steps = [
   {
     number: '01',
     title: 'Connect your workspace',
-    description: 'Sign in and authorize Notion. Optionally connect Airtable, Slack, HubSpot, Monday.com, or Trello.',
+    description: 'Sign in and connect your tools — Airtable, Slack, HubSpot, Monday.com, or Trello.',
   },
   {
     number: '02',
@@ -14,7 +14,7 @@ const steps = [
   {
     number: '03',
     title: 'Choose your destinations',
-    description: 'Pick any combination of Notion, Airtable, Google Sheets, Slack, HubSpot, Monday.com, or Trello. Your calendar lands everywhere at once.',
+    description: 'Pick any combination of Airtable, Google Sheets, Slack, HubSpot, Monday.com, or Trello. Your calendar lands everywhere at once.',
   },
   {
     number: '04',

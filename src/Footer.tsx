@@ -14,7 +14,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <p className="text-xs text-white/22 text-center font-mono-feature">
-          Notion is a trademark of Notion Labs, Inc. · Airtable is a trademark of Formagrid Inc.
+          Airtable is a trademark of Formagrid Inc.
         </p>
 
         <p className="text-xs text-white/22 font-mono-feature">&copy; {new Date().getFullYear()} Castcal</p>

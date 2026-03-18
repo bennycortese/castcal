@@ -2,12 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './@/components/ui/button';
 import { useUser, UserButton } from '@clerk/react';
-import { useNotionAuth } from './hooks';
 import { Zap } from 'lucide-react';
 
 export const NavBar: React.FC = () => {
   const { user } = useUser();
-  const notionAuth = useNotionAuth(user);
 
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl border-b border-white/[0.05]">
@@ -33,19 +31,14 @@ export const NavBar: React.FC = () => {
               <Button variant="nav" size="sm">Profile</Button>
             </Link>
           )}
-          {user && (
-            <Link to="/login">
-              <Button variant="nav" size="sm">Connect Notion</Button>
-            </Link>
-          )}
           {!user && (
             <Link to="/login">
               <Button variant="nav" size="sm">Sign in</Button>
             </Link>
           )}
-          <Link to={(!user || !notionAuth) ? '/login' : '/create'}>
+          <Link to={user ? '/create' : '/login'}>
             <Button variant="primary" size="sm">
-              {user && notionAuth ? 'Open App' : 'Get started'}
+              {user ? 'Open App' : 'Get started'}
             </Button>
           </Link>
         </nav>
