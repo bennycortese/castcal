@@ -21,8 +21,6 @@ interface ContentItem {
 
 interface ContentGeneratorButtonProps {
   editorContent: string;
-  airtableToken: string | null;
-  slackWebhookUrl: string | null;
   hubspotToken: string | null;
   mondayToken: string | null;
   mondayBoardId: string | null;
@@ -32,8 +30,6 @@ interface ContentGeneratorButtonProps {
 
 const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
   editorContent,
-  airtableToken,
-  slackWebhookUrl,
   hubspotToken,
   mondayToken,
   mondayBoardId,
@@ -70,62 +66,6 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
     });
     if (!res.ok) throw new Error('Failed to generate content');
     return res.json();
-  };
-
-  const pushToAirtable = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
-    const headers = await authHeaders();
-    try {
-      const res = await fetch(`${API_URL}/api/push-airtable`, {
-        method: 'POST', headers, credentials: 'include',
-        body: JSON.stringify({ airtableToken, title, items }),
-      });
-      if (!res.ok) throw new Error('Airtable push failed');
-      const data = await res.json();
-      return { destination: 'airtable', success: true, link: data.link };
-    } catch (err) {
-      return { destination: 'airtable', success: false, error: String(err) };
-    }
-  };
-
-  const pushToCSV = (title: string, items: ContentItem[]): ExportResult => {
-    try {
-      const header = ['Title', 'Channel', 'Publish Date', 'Status', 'Format', 'Hook', 'Description'];
-      const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
-      const rows = items.map((item) => [
-        escape(`${item.emoji} ${item.title}`),
-        escape(item.channel),
-        escape(item.publish_date),
-        escape(item.status),
-        escape(item.format),
-        escape(item.hook),
-        escape(item.description),
-      ].join(','));
-      const csv = [header.join(','), ...rows].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${title.replace(/[^a-z0-9]/gi, '_')}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-      return { destination: 'csv', success: true };
-    } catch (err) {
-      return { destination: 'csv', success: false, error: String(err) };
-    }
-  };
-
-  const pushToSlack = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
-    const headers = await authHeaders();
-    try {
-      const res = await fetch(`${API_URL}/api/push-slack`, {
-        method: 'POST', headers, credentials: 'include',
-        body: JSON.stringify({ slackWebhookUrl, title, items }),
-      });
-      if (!res.ok) throw new Error('Slack push failed');
-      return { destination: 'slack', success: true };
-    } catch (err) {
-      return { destination: 'slack', success: false, error: String(err) };
-    }
   };
 
   const pushToHubSpot = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
@@ -197,9 +137,6 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
       const { calendar_title, items } = await fetchClaudeContent(editorContent);
       const results: ExportResult[] = [];
 
-      if (selectedDestinations.has('airtable') && airtableToken) results.push(await pushToAirtable(calendar_title, items));
-      if (selectedDestinations.has('csv')) results.push(pushToCSV(calendar_title, items));
-      if (selectedDestinations.has('slack') && slackWebhookUrl) results.push(await pushToSlack(calendar_title, items));
       if (selectedDestinations.has('hubspot') && hubspotToken) results.push(await pushToHubSpot(calendar_title, items));
       if (selectedDestinations.has('monday') && mondayToken && mondayBoardId) results.push(await pushToMonday(calendar_title, items));
       if (selectedDestinations.has('trello') && trelloApiKey && trelloToken) results.push(await pushToTrello(calendar_title, items));

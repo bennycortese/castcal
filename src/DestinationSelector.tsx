@@ -14,26 +14,6 @@ type Destination = {
 
 const DESTINATIONS: Destination[] = [
   {
-    id: 'airtable',
-    name: 'Airtable',
-    icon: '⬡',
-    description: 'Base with full calendar schema',
-    requiresToken: 'Add Airtable token in Profile',
-  },
-  {
-    id: 'csv',
-    name: 'Google Sheets',
-    icon: '⊞',
-    description: 'Download as CSV, open in Sheets',
-  },
-  {
-    id: 'slack',
-    name: 'Slack',
-    icon: '#',
-    description: 'Post summary to a channel',
-    requiresToken: 'Add Slack webhook in Profile',
-  },
-  {
     id: 'hubspot',
     name: 'HubSpot',
     icon: '⬡',
@@ -57,8 +37,6 @@ const DESTINATIONS: Destination[] = [
 ];
 
 interface DestinationSelectorProps {
-  airtableToken: string | null;
-  slackWebhookUrl: string | null;
   hubspotToken: string | null;
   mondayToken: string | null;
   mondayBoardId: string | null;
@@ -67,7 +45,7 @@ interface DestinationSelectorProps {
 }
 
 const DestinationSelector: React.FC<DestinationSelectorProps> = ({
-  airtableToken, slackWebhookUrl, hubspotToken, mondayToken, mondayBoardId, trelloApiKey, trelloToken,
+  hubspotToken, mondayToken, mondayBoardId, trelloApiKey, trelloToken,
 }) => {
   const [selected, setSelected] = useAtom(selectedDestinationsAtom);
 
@@ -86,8 +64,6 @@ const DestinationSelector: React.FC<DestinationSelectorProps> = ({
 
   const isDisabled = (d: Destination) => {
     if (d.comingSoon) return true;
-    if (d.id === 'airtable' && !airtableToken) return true;
-    if (d.id === 'slack' && !slackWebhookUrl) return true;
     if (d.id === 'hubspot' && !hubspotToken) return true;
     if (d.id === 'monday' && (!mondayToken || !mondayBoardId)) return true;
     if (d.id === 'trello' && (!trelloApiKey || !trelloToken)) return true;

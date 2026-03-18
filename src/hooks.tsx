@@ -76,16 +76,13 @@ export const useStripeSubscription = (user: any) => {
 
 export const useUserIntegrations = (user: any) => {
   const [integrations, setIntegrations] = useState<{
-    airtable_token:    string | null;
-    slack_webhook_url: string | null;
-    hubspot_token:     string | null;
-    monday_token:      string | null;
-    monday_board_id:   string | null;
-    trello_api_key:    string | null;
-    trello_token:      string | null;
+    hubspot_token:   string | null;
+    monday_token:    string | null;
+    monday_board_id: string | null;
+    trello_api_key:  string | null;
+    trello_token:    string | null;
   }>({
-    airtable_token: null, slack_webhook_url: null, hubspot_token: null,
-    monday_token: null, monday_board_id: null, trello_api_key: null, trello_token: null,
+    hubspot_token: null, monday_token: null, monday_board_id: null, trello_api_key: null, trello_token: null,
   });
 
   useEffect(() => {
@@ -99,18 +96,15 @@ export const useUserIntegrations = (user: any) => {
         });
         const data = await res.json();
         setIntegrations({
-          airtable_token:    data.airtable_token    || null,
-          slack_webhook_url: data.slack_webhook_url || null,
-          hubspot_token:     data.hubspot_token     || null,
-          monday_token:      data.monday_token      || null,
-          monday_board_id:   data.monday_board_id   || null,
-          trello_api_key:    data.trello_api_key    || null,
-          trello_token:      data.trello_token      || null,
+          hubspot_token:   data.hubspot_token   || null,
+          monday_token:    data.monday_token    || null,
+          monday_board_id: data.monday_board_id || null,
+          trello_api_key:  data.trello_api_key  || null,
+          trello_token:    data.trello_token    || null,
         });
       } catch {
         setIntegrations({
-          airtable_token: null, slack_webhook_url: null, hubspot_token: null,
-          monday_token: null, monday_board_id: null, trello_api_key: null, trello_token: null,
+          hubspot_token: null, monday_token: null, monday_board_id: null, trello_api_key: null, trello_token: null,
         });
       }
     };

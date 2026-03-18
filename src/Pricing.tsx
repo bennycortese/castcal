@@ -104,7 +104,7 @@ const Pricing: React.FC = () => {
             description="For agencies running multiple clients."
             features={[
               'Unlimited exports per month',
-              'Airtable, Google Sheets, Slack, HubSpot, Monday.com, Trello',
+              'HubSpot, Monday.com, Trello',
               'Priority generation',
               'PDF & DOCX upload',
               'Multi-destination in one click',

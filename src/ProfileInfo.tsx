@@ -14,8 +14,6 @@ const ProfileInfo: React.FC = () => {
   const monthMaxUsage = useMaxMonthCount(user);
   const stripeSubscription = useStripeSubscription(user);
 
-  const [airtableToken, setAirtableToken] = useState('');
-  const [slackWebhookUrl, setSlackWebhookUrl] = useState('');
   const [hubspotToken, setHubspotToken] = useState('');
   const [mondayToken, setMondayToken] = useState('');
   const [mondayBoardId, setMondayBoardId] = useState('');
@@ -34,8 +32,6 @@ const ProfileInfo: React.FC = () => {
           body: JSON.stringify({ userId: user.id }),
         });
         const data = await res.json();
-        setAirtableToken(data.airtable_token || '');
-        setSlackWebhookUrl(data.slack_webhook_url || '');
         setHubspotToken(data.hubspot_token || '');
         setMondayToken(data.monday_token || '');
         setMondayBoardId(data.monday_board_id || '');
@@ -53,7 +49,7 @@ const ProfileInfo: React.FC = () => {
       await fetch(`${API_URL}/api/save-integrations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, airtableToken, slackWebhookUrl, hubspotToken, mondayToken, mondayBoardId, trelloApiKey, trelloToken }),
+        body: JSON.stringify({ userId: user.id, hubspotToken, mondayToken, mondayBoardId, trelloApiKey, trelloToken }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -95,48 +91,6 @@ const ProfileInfo: React.FC = () => {
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-widest mb-5">Integrations</h2>
 
           <div className="flex flex-col gap-5">
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
-                <Key className="w-3.5 h-3.5 text-violet-400" />
-                Airtable Personal Access Token
-              </label>
-              <input
-                type="password"
-                value={airtableToken}
-                onChange={(e) => setAirtableToken(e.target.value)}
-                placeholder="patXXXXXXXXXXXXXX"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
-              />
-              <p className="text-xs text-white/25 mt-1.5">
-                Create at{' '}
-                <a href="https://airtable.com/create/tokens" target="_blank" rel="noopener noreferrer" className="text-violet-400/70 hover:text-violet-400 inline-flex items-center gap-0.5">
-                  airtable.com/create/tokens <Link2 className="w-3 h-3" />
-                </a>
-                {' '}— needs <code className="text-xs bg-white/10 px-1 rounded">data.records:write</code> and <code className="text-xs bg-white/10 px-1 rounded">schema.bases:write</code>
-              </p>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
-                <Key className="w-3.5 h-3.5 text-violet-400" />
-                Slack Incoming Webhook URL
-              </label>
-              <input
-                type="password"
-                value={slackWebhookUrl}
-                onChange={(e) => setSlackWebhookUrl(e.target.value)}
-                placeholder="https://hooks.slack.com/services/..."
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
-              />
-              <p className="text-xs text-white/25 mt-1.5">
-                Create at{' '}
-                <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer" className="text-violet-400/70 hover:text-violet-400 inline-flex items-center gap-0.5">
-                  api.slack.com/apps <Link2 className="w-3 h-3" />
-                </a>
-                {' '}→ Incoming Webhooks → Add New Webhook to Workspace
-              </p>
-            </div>
-
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
                 <Key className="w-3.5 h-3.5 text-violet-400" />

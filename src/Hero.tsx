@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { ShimmerButton } from './@/components/magic/shimmer-button';
 import { Button } from './@/components/ui/button';
 
-const PLATFORMS = ['Airtable', 'Google Sheets', 'Slack', 'HubSpot', 'Monday.com', 'Trello'];
+const PLATFORMS = ['HubSpot', 'Monday.com', 'Trello'];
 
 export const Hero: React.FC = () => {
   const { user } = useUser();

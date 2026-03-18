@@ -55,8 +55,6 @@ const BriefInput: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div className="glass-card rounded-xl p-5">
               <DestinationSelector
-                airtableToken={integrations.airtable_token}
-                slackWebhookUrl={integrations.slack_webhook_url}
                 hubspotToken={integrations.hubspot_token}
                 mondayToken={integrations.monday_token}
                 mondayBoardId={integrations.monday_board_id}
@@ -67,8 +65,6 @@ const BriefInput: React.FC = () => {
 
             <ContentGeneratorButton
               editorContent={editorContent}
-              airtableToken={integrations.airtable_token}
-              slackWebhookUrl={integrations.slack_webhook_url}
               hubspotToken={integrations.hubspot_token}
               mondayToken={integrations.monday_token}
               mondayBoardId={integrations.monday_board_id}
