@@ -1,124 +1,32 @@
 import React from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { generatingStateAtom, selectedDestinationsAtom, exportResultsAtom, ExportResult } from './atoms';
+import { useAtom, useSetAtom } from 'jotai';
+import { generatingStateAtom, generatedCalendarAtom } from './atoms';
 import { useCurrentMonthCount, useMaxMonthCount, useStripeSubscription } from './hooks';
 import { useUser } from '@clerk/react';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { ShimmerButton } from './@/components/magic/shimmer-button';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-interface ContentItem {
-  title: string;
-  channel: string;
-  publish_date: string;
-  status: string;
-  format: string;
-  hook: string;
-  description: string;
-  emoji: string;
-}
-
-interface ContentGeneratorButtonProps {
-  editorContent: string;
-  hubspotToken: string | null;
-  mondayToken: string | null;
-  mondayBoardId: string | null;
-  trelloApiKey: string | null;
-  trelloToken: string | null;
-}
-
-const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
-  editorContent,
-  hubspotToken,
-  mondayToken,
-  mondayBoardId,
-  trelloApiKey,
-  trelloToken,
-}) => {
+const ContentGeneratorButton: React.FC<{ editorContent: string }> = ({ editorContent }) => {
   const [generatingState, setGeneratingState] = useAtom(generatingStateAtom);
-  const setExportResults = useSetAtom(exportResultsAtom);
-  const selectedDestinations = useAtomValue(selectedDestinationsAtom);
+  const setGeneratedCalendar = useSetAtom(generatedCalendarAtom);
   const { user } = useUser();
   const monthUsage = useCurrentMonthCount(user);
   const monthMaxUsage = useMaxMonthCount(user);
   const stripeSubscription = useStripeSubscription(user);
+  const navigate = useNavigate();
 
-  const getToken = () => {
-    return (window as any).__clerk?.session?.getToken?.() as Promise<string | null> | undefined;
-  };
+  const getToken = () =>
+    (window as any).__clerk?.session?.getToken?.() as Promise<string | null> | undefined;
 
   const authHeaders = async (): Promise<Record<string, string>> => {
     try {
       const token = await getToken();
       if (token) return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
-    } catch { }
+    } catch {}
     return { 'Content-Type': 'application/json' };
-  };
-
-  const fetchClaudeContent = async (brief: string): Promise<{ calendar_title: string; items: ContentItem[] }> => {
-    const headers = await authHeaders();
-    const res = await fetch(`${API_URL}/api/claude-content`, {
-      method: 'POST',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify({ content: brief }),
-    });
-    if (!res.ok) throw new Error('Failed to generate content');
-    return res.json();
-  };
-
-  const pushToHubSpot = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
-    const headers = await authHeaders();
-    try {
-      const res = await fetch(`${API_URL}/api/push-hubspot`, {
-        method: 'POST', headers, credentials: 'include',
-        body: JSON.stringify({ hubspotToken, title, items }),
-      });
-      if (!res.ok) throw new Error('HubSpot push failed');
-      const data = await res.json();
-      return { destination: 'hubspot', success: true, link: data.link };
-    } catch (err) {
-      return { destination: 'hubspot', success: false, error: String(err) };
-    }
-  };
-
-  const pushToMonday = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
-    const headers = await authHeaders();
-    try {
-      const res = await fetch(`${API_URL}/api/push-monday`, {
-        method: 'POST', headers, credentials: 'include',
-        body: JSON.stringify({ mondayToken, mondayBoardId, title, items }),
-      });
-      if (!res.ok) throw new Error('Monday.com push failed');
-      const data = await res.json();
-      return { destination: 'monday', success: true, link: data.link };
-    } catch (err) {
-      return { destination: 'monday', success: false, error: String(err) };
-    }
-  };
-
-  const pushToTrello = async (title: string, items: ContentItem[]): Promise<ExportResult> => {
-    const headers = await authHeaders();
-    try {
-      const res = await fetch(`${API_URL}/api/push-trello`, {
-        method: 'POST', headers, credentials: 'include',
-        body: JSON.stringify({ trelloApiKey, trelloToken, title, items }),
-      });
-      if (!res.ok) throw new Error('Trello push failed');
-      const data = await res.json();
-      return { destination: 'trello', success: true, link: data.link };
-    } catch (err) {
-      return { destination: 'trello', success: false, error: String(err) };
-    }
-  };
-
-  const incrementUsage = async () => {
-    const headers = await authHeaders();
-    await fetch(`${API_URL}/api/increment-usage`, {
-      method: 'POST', headers, credentials: 'include',
-      body: JSON.stringify({ editorContent }),
-    });
   };
 
   const handleGenerate = async () => {
@@ -131,19 +39,23 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
     }
 
     setGeneratingState('generating');
-    setExportResults([]);
-
     try {
-      const { calendar_title, items } = await fetchClaudeContent(editorContent);
-      const results: ExportResult[] = [];
+      const headers = await authHeaders();
+      const res = await fetch(`${API_URL}/api/claude-content`, {
+        method: 'POST', headers, credentials: 'include',
+        body: JSON.stringify({ content: editorContent }),
+      });
+      if (!res.ok) throw new Error('Failed to generate content');
+      const data = await res.json();
+      setGeneratedCalendar(data);
 
-      if (selectedDestinations.has('hubspot') && hubspotToken) results.push(await pushToHubSpot(calendar_title, items));
-      if (selectedDestinations.has('monday') && mondayToken && mondayBoardId) results.push(await pushToMonday(calendar_title, items));
-      if (selectedDestinations.has('trello') && trelloApiKey && trelloToken) results.push(await pushToTrello(calendar_title, items));
+      await fetch(`${API_URL}/api/increment-usage`, {
+        method: 'POST', headers, credentials: 'include',
+        body: JSON.stringify({ editorContent }),
+      });
 
-      setExportResults(results);
-      await incrementUsage();
-      setGeneratingState('success');
+      setGeneratingState('idle');
+      navigate('/review');
     } catch (err) {
       console.error(err);
       setGeneratingState('error');
@@ -166,7 +78,7 @@ const ContentGeneratorButton: React.FC<ContentGeneratorButtonProps> = ({
       ) : (
         <>
           <Sparkles className="w-4 h-4" />
-          Generate &amp; Export
+          Generate &amp; Review
         </>
       )}
     </ShimmerButton>

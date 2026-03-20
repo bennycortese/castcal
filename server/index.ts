@@ -652,15 +652,14 @@ app.post('/api/increment-usage', authGuard, async (req: Request, res: Response) 
 app.post('/api/user-integrations', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
   try {
-    const rows = await sql`SELECT airtable_token, slack_webhook_url, hubspot_token, monday_token, monday_board_id, trello_api_key, trello_token FROM "castcal-auth" WHERE user_id = ${userId}`;
+    const rows = await sql`SELECT hubspot_token, monday_token, monday_board_id, trello_api_key, trello_token, buffer_access_token FROM "castcal-auth" WHERE user_id = ${userId}`;
     res.status(200).json({
-      airtable_token:    rows[0]?.airtable_token    ?? null,
-      slack_webhook_url: rows[0]?.slack_webhook_url ?? null,
-      hubspot_token:     rows[0]?.hubspot_token     ?? null,
-      monday_token:      rows[0]?.monday_token      ?? null,
-      monday_board_id:   rows[0]?.monday_board_id   ?? null,
-      trello_api_key:    rows[0]?.trello_api_key    ?? null,
-      trello_token:      rows[0]?.trello_token      ?? null,
+      hubspot_token:       rows[0]?.hubspot_token       ?? null,
+      monday_token:        rows[0]?.monday_token        ?? null,
+      monday_board_id:     rows[0]?.monday_board_id     ?? null,
+      trello_api_key:      rows[0]?.trello_api_key      ?? null,
+      trello_token:        rows[0]?.trello_token        ?? null,
+      buffer_access_token: rows[0]?.buffer_access_token ?? null,
     });
   } catch {
     res.status(500).json({ error: 'Unexpected error' });
@@ -669,19 +668,17 @@ app.post('/api/user-integrations', authGuard, async (req: Request, res: Response
 
 app.post('/api/save-integrations', authGuard, async (req: Request, res: Response) => {
   const userId = (req as any).verifiedUserId as string;
-  const airtableToken   = sanitizeString(req.body.airtableToken   || '', 500) || null;
-  const slackWebhookUrl = sanitizeString(req.body.slackWebhookUrl || '', 500) || null;
-  const hubspotToken    = sanitizeString(req.body.hubspotToken    || '', 500) || null;
-  const mondayToken     = sanitizeString(req.body.mondayToken     || '', 500) || null;
-  const mondayBoardId   = sanitizeString(req.body.mondayBoardId   || '', 50)  || null;
-  const trelloApiKey    = sanitizeString(req.body.trelloApiKey    || '', 100) || null;
-  const trelloToken     = sanitizeString(req.body.trelloToken     || '', 200) || null;
+  const bufferAccessToken = sanitizeString(req.body.bufferAccessToken || '', 200) || null;
+  const hubspotToken      = sanitizeString(req.body.hubspotToken      || '', 500) || null;
+  const mondayToken       = sanitizeString(req.body.mondayToken       || '', 500) || null;
+  const mondayBoardId     = sanitizeString(req.body.mondayBoardId     || '', 50)  || null;
+  const trelloApiKey      = sanitizeString(req.body.trelloApiKey      || '', 100) || null;
+  const trelloToken       = sanitizeString(req.body.trelloToken       || '', 200) || null;
 
   try {
     await sql`
       UPDATE "castcal-auth"
-      SET airtable_token = ${airtableToken},
-          slack_webhook_url = ${slackWebhookUrl},
+      SET buffer_access_token = ${bufferAccessToken},
           hubspot_token = ${hubspotToken},
           monday_token = ${mondayToken},
           monday_board_id = ${mondayBoardId},
@@ -693,6 +690,67 @@ app.post('/api/save-integrations', authGuard, async (req: Request, res: Response
   } catch (error) {
     res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
   }
+});
+
+// ─── Buffer ──────────────────────────────────────────────────────────────────
+
+app.post('/api/buffer-profiles', authGuard, async (req: Request, res: Response) => {
+  const bufferToken = sanitizeString(req.body.bufferToken || '', 200);
+  if (!bufferToken) return res.status(400).json({ error: 'bufferToken required' });
+
+  try {
+    const profilesRes = await fetch(
+      `https://api.bufferapp.com/1/profiles.json?access_token=${encodeURIComponent(bufferToken)}`
+    );
+    if (!profilesRes.ok) return res.status(400).json({ error: 'Invalid Buffer token or no profiles found' });
+    const profiles = await profilesRes.json() as any[];
+    res.status(200).json(
+      profiles.map(p => ({
+        id: p.id,
+        service: p.service,
+        formatted_username: p.formatted_username || p.service_username || p.service,
+      }))
+    );
+  } catch (error) {
+    console.error('Buffer profiles error:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+app.post('/api/push-buffer', authGuard, async (req: Request, res: Response) => {
+  const { bufferToken, profileIds, items } = req.body;
+  if (!bufferToken || !profileIds?.length || !items?.length)
+    return res.status(400).json({ error: 'bufferToken, profileIds, and items required' });
+  if (!Array.isArray(items) || items.length > 100)
+    return res.status(400).json({ error: 'Invalid items array' });
+  if (!Array.isArray(profileIds) || profileIds.length > 20)
+    return res.status(400).json({ error: 'Invalid profileIds' });
+
+  const token = sanitizeString(bufferToken, 200);
+  let pushed = 0;
+
+  for (const item of items) {
+    const params = new URLSearchParams();
+    params.append('access_token', token);
+    (profileIds as string[]).forEach(id => params.append('profile_ids[]', sanitizeString(id, 100)));
+    params.append('text', sanitizeString(`${item.emoji} ${item.title}\n\n${item.hook}`, 2000));
+    if (item.publish_date && item.publish_date !== 'NONE') {
+      try {
+        params.append('scheduled_at', new Date(item.publish_date + 'T10:00:00').toISOString());
+      } catch { /* use queue order */ }
+    }
+
+    try {
+      const bufferRes = await fetch('https://api.bufferapp.com/1/updates/create.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+      });
+      if (bufferRes.ok) pushed++;
+    } catch { /* count as skipped */ }
+  }
+
+  res.status(200).json({ success: pushed === items.length, pushed, total: items.length });
 });
 
 // ─── Stripe ──────────────────────────────────────────────────────────────────

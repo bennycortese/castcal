@@ -2,8 +2,7 @@ import { atom } from 'jotai';
 
 export const editorContentAtom = atom<string>('');
 export const pdfChangeAtom = atom<boolean>(false);
-export const generatingStateAtom = atom<'idle' | 'generating' | 'success' | 'error' | 'limit_exceeded'>('idle');
-export const selectedDestinationsAtom = atom<Set<string>>(new Set(['csv']));
+export const generatingStateAtom = atom<'idle' | 'generating' | 'error' | 'limit_exceeded'>('idle');
 
 export type ExportResult = {
   destination: string;
@@ -13,3 +12,16 @@ export type ExportResult = {
 };
 
 export const exportResultsAtom = atom<ExportResult[]>([]);
+
+export type ContentItem = {
+  title: string;
+  channel: string;
+  publish_date: string;
+  status: string;
+  format: string;
+  hook: string;
+  description: string;
+  emoji: string;
+};
+
+export const generatedCalendarAtom = atom<{ calendar_title: string; items: ContentItem[] } | null>(null);

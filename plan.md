@@ -27,3 +27,7 @@
 - [ ] Migrate from create-react-app to Vite
 - [ ] Add proper test coverage for server routes
 - [ ] Move API keys to a proper secrets manager
+
+
+Brief → Castcal generates 30 posts → directly pushed to Buffer as drafts → 
+user reviews and clicks "approve" → posts go live on schedule

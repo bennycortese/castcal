@@ -14,6 +14,7 @@ const ProfileInfo: React.FC = () => {
   const monthMaxUsage = useMaxMonthCount(user);
   const stripeSubscription = useStripeSubscription(user);
 
+  const [bufferAccessToken, setBufferAccessToken] = useState('');
   const [hubspotToken, setHubspotToken] = useState('');
   const [mondayToken, setMondayToken] = useState('');
   const [mondayBoardId, setMondayBoardId] = useState('');
@@ -32,6 +33,7 @@ const ProfileInfo: React.FC = () => {
           body: JSON.stringify({ userId: user.id }),
         });
         const data = await res.json();
+        setBufferAccessToken(data.buffer_access_token || '');
         setHubspotToken(data.hubspot_token || '');
         setMondayToken(data.monday_token || '');
         setMondayBoardId(data.monday_board_id || '');
@@ -49,7 +51,7 @@ const ProfileInfo: React.FC = () => {
       await fetch(`${API_URL}/api/save-integrations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, hubspotToken, mondayToken, mondayBoardId, trelloApiKey, trelloToken }),
+        body: JSON.stringify({ userId: user.id, bufferAccessToken, hubspotToken, mondayToken, mondayBoardId, trelloApiKey, trelloToken }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -91,6 +93,27 @@ const ProfileInfo: React.FC = () => {
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-widest mb-5">Integrations</h2>
 
           <div className="flex flex-col gap-5">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
+                <Key className="w-3.5 h-3.5 text-violet-400" />
+                Buffer Access Token
+              </label>
+              <input
+                type="password"
+                value={bufferAccessToken}
+                onChange={(e) => setBufferAccessToken(e.target.value)}
+                placeholder="1/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
+              />
+              <p className="text-xs text-white/25 mt-1.5">
+                Get at{' '}
+                <a href="https://buffer.com/developers/api" target="_blank" rel="noopener noreferrer" className="text-violet-400/70 hover:text-violet-400 inline-flex items-center gap-0.5">
+                  buffer.com/developers/api <Link2 className="w-3 h-3" />
+                </a>
+                {' '}→ create an app → copy the access token
+              </p>
+            </div>
+
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
                 <Key className="w-3.5 h-3.5 text-violet-400" />
