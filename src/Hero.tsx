@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { ShimmerButton } from './@/components/magic/shimmer-button';
 import { Button } from './@/components/ui/button';
 
-const PLATFORMS = ['HubSpot', 'Monday.com', 'Trello'];
+const PLATFORMS = ['Buffer', 'HubSpot', 'Monday.com', 'Trello'];
 
 export const Hero: React.FC = () => {
   const { user } = useUser();
@@ -26,11 +26,11 @@ export const Hero: React.FC = () => {
 
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.06] tracking-tight text-white mb-6 text-balance">
           Turn any brief into a{' '}
-          <span className="gradient-text">content calendar</span>
+          <span className="gradient-text">content schedule</span>
         </h1>
 
         <p className="text-lg text-white/45 max-w-xl mx-auto mb-10 leading-relaxed">
-          Paste a brief, campaign doc, or strategy — Castcal extracts every content idea and delivers it to the tools your team already uses.
+          Paste a brief, campaign doc, or strategy — Castcal extracts every content idea and pushes it straight to Buffer as a ready-to-publish schedule.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 mb-14">
@@ -53,7 +53,7 @@ export const Hero: React.FC = () => {
 
         <div className="w-full border-t border-white/[0.05] pt-8">
           <p className="font-mono-feature text-[10px] uppercase tracking-widest text-white/25 mb-5">
-            Exports to
+            Publishes via
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {PLATFORMS.map((p) => (

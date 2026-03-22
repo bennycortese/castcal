@@ -4,7 +4,7 @@ const steps = [
   {
     number: '01',
     title: 'Connect your workspace',
-    description: 'Sign in and connect your tools — Airtable, Slack, HubSpot, Monday.com, or Trello.',
+    description: 'Sign in and connect Buffer to schedule posts, or link HubSpot, Monday.com, or Trello to track your calendar.',
   },
   {
     number: '02',
@@ -13,13 +13,13 @@ const steps = [
   },
   {
     number: '03',
-    title: 'Choose your destinations',
-    description: 'Pick any combination of Airtable, Google Sheets, Slack, HubSpot, Monday.com, or Trello. Your calendar lands everywhere at once.',
+    title: 'Review and approve',
+    description: 'Browse every generated post, approve the ones you want, and push them directly to Buffer — or export to HubSpot, Monday.com, or Trello.',
   },
   {
     number: '04',
-    title: 'Get a live calendar',
-    description: 'Castcal creates the database with every post pre-structured: channel, format, hook, date, status.',
+    title: 'Posts queued in Buffer',
+    description: 'Approved posts land in your Buffer queue, pre-structured with channel, format, hook, and publish date — ready to go live.',
   },
 ];
 
@@ -30,7 +30,7 @@ export const HowItWorks: React.FC = () => {
         <div className="mb-16">
           <p className="font-mono-feature text-[11px] uppercase tracking-widest text-white/30 mb-4">How it works</p>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Four steps, under a minute</h2>
-          <p className="text-white/40">No prompt engineering. No reformatting. Just your calendar.</p>
+          <p className="text-white/40">No prompt engineering. No reformatting. Just your schedule.</p>
         </div>
 
         {/* Desktop: horizontal row with connector line */}

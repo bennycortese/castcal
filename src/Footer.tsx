@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 
 export const Footer: React.FC = () => {
@@ -12,10 +11,6 @@ export const Footer: React.FC = () => {
           </div>
           <span className="font-semibold text-white/80 text-sm">Castcal</span>
         </div>
-
-        <p className="text-xs text-white/22 text-center font-mono-feature">
-          Airtable is a trademark of Formagrid Inc.
-        </p>
 
         <p className="text-xs text-white/22 font-mono-feature">&copy; {new Date().getFullYear()} Castcal</p>
       </div>

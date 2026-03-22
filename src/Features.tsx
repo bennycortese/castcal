@@ -24,7 +24,7 @@ const features = [
     icon: <Send className="w-5 h-5 text-white/60" />,
     title: 'Deliver to your stack',
     description:
-      'Push structured content calendars to Airtable, Google Sheets, HubSpot, Monday.com, or Trello — or ping Slack — in one click.',
+      'Push posts directly to Buffer to queue them for publishing, or export your calendar to HubSpot, Monday.com, or Trello — in one click.',
   },
   {
     badge: 'Speed',
@@ -51,7 +51,7 @@ export const Features: React.FC = () => {
         <div className="mb-16">
           <p className="font-mono-feature text-[11px] uppercase tracking-widest text-white/30 mb-4">Features</p>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            From brief to calendar in{' '}
+            From brief to scheduled posts in{' '}
             <span className="gradient-text">seconds</span>
           </h2>
           <p className="text-white/40 max-w-lg">
