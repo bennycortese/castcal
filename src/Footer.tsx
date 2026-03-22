@@ -9,10 +9,10 @@ export const Footer: React.FC = () => {
           <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center">
             <Zap className="w-3 h-3 text-white" fill="white" />
           </div>
-          <span className="font-semibold text-white/80 text-sm">Castcal</span>
+          <span className="font-semibold text-white/80 text-sm">Briefcast</span>
         </div>
 
-        <p className="text-xs text-white/22 font-mono-feature">&copy; {new Date().getFullYear()} Castcal</p>
+        <p className="text-xs text-white/22 font-mono-feature">&copy; {new Date().getFullYear()} Briefcast</p>
       </div>
     </footer>
   );

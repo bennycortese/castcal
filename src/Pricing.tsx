@@ -94,7 +94,7 @@ const Pricing: React.FC = () => {
           <PricingCard
             title="Free"
             price="$0"
-            description="Try Castcal with no commitment."
+            description="Try Briefcast with no commitment."
             features={['3 calendar exports per month', 'All destinations', 'PDF & DOCX upload', 'Claude Sonnet generation']}
             highlighted={false}
           />

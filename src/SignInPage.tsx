@@ -11,7 +11,7 @@ const SignInPage: React.FC = () => {
         <div className="w-full max-w-md flex flex-col items-center gap-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-2">Welcome back</h2>
-            <p className="text-white/40">Sign in to your Castcal account.</p>
+            <p className="text-white/40">Sign in to your Briefcast account.</p>
           </div>
           <SignIn routing="hash" signUpUrl="/login" fallbackRedirectUrl="/create" />
         </div>

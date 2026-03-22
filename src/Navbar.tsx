@@ -16,7 +16,7 @@ export const NavBar: React.FC = () => {
               <Zap className="w-3.5 h-3.5 text-white" fill="white" />
             </div>
             <span className="text-base font-bold tracking-tight text-white group-hover:text-indigo-300 transition-colors">
-              Castcal
+              Briefcast
             </span>
           </Link>
           <span className="font-mono-feature hidden md:inline-flex items-center px-2 py-0.5 rounded text-[9px] font-semibold border border-indigo-500/25 bg-indigo-500/8 text-indigo-400 tracking-widest uppercase">

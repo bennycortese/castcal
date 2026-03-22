@@ -5,7 +5,9 @@
       "WebFetch(domain:www.browserbase.com)",
       "WebFetch(domain:www.tryflint.com)",
       "WebSearch",
-      "WebFetch(domain:trustmrr.com)"
+      "WebFetch(domain:trustmrr.com)",
+      "Bash(curl -s \"https://rdap.verisign.com/com/v1/domain/briefcast.com\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''Status:'', d.get\\(''status''\\)\\); print\\(''Registered:'', d.get\\(''events'', [{}]\\)[0].get\\(''eventDate'',''?''\\)\\)\")"
     ]
   }
 }

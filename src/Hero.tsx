@@ -30,7 +30,7 @@ export const Hero: React.FC = () => {
         </h1>
 
         <p className="text-lg text-white/45 max-w-xl mx-auto mb-10 leading-relaxed">
-          Paste a brief, campaign doc, or strategy — Castcal extracts every content idea and pushes it straight to Buffer as a ready-to-publish schedule.
+          Paste a brief, campaign doc, or strategy — Briefcast extracts every content idea and pushes it straight to Buffer as a ready-to-publish schedule.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 mb-14">

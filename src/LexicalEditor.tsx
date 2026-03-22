@@ -64,7 +64,7 @@ function LexicalEditor({ setGetEditorText }: LexicalEditorProps) {
   const setEditorContent = useSetAtom(editorContentAtom);
 
   return (
-    <LexicalComposer initialConfig={{ namespace: 'CastcalEditor', theme: {}, onError }}>
+    <LexicalComposer initialConfig={{ namespace: 'BriefcastEditor', theme: {}, onError }}>
       <PlainTextPlugin
         contentEditable={<ContentEditable className="editor-container" />}
         ErrorBoundary={LexicalErrorBoundary}

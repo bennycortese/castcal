@@ -8,7 +8,7 @@ const features = [
     icon: <FileText className="w-5 h-5 text-white/60" />,
     title: 'Paste anything',
     description:
-      'Drop in a marketing brief, campaign doc, keyword list, or upload a PDF or DOCX. Castcal handles the parsing.',
+      'Drop in a marketing brief, campaign doc, keyword list, or upload a PDF or DOCX. Briefcast handles the parsing.',
   },
   {
     badge: 'AI',

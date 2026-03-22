@@ -1,21 +1,27 @@
-# Castcal — Setup Guide
+# Briefcast — Setup Guide
 
-## Supabase table
+## Neon database table
 
-Create a table named `castcal-auth` with these columns:
+Run `server/schema.sql` in your Neon dashboard → SQL Editor before starting the server.
+
+Table name: `briefcast-auth`
 
 | Column | Type | Notes |
 |---|---|---|
 | user_id | text | primary key |
-| notion_auth | text | |
+| notion_auth | text | nullable |
 | current_usage | int4 | default 0 |
 | max_monthly_usage | int4 | default 3 |
 | total_usage | int4 | default 0 |
-| all_usage_times | jsonb | default [] |
-| all_uploaded_content | jsonb | default [] |
+| all_usage_times | text[] | default {} |
+| all_uploaded_content | text[] | default {} |
 | stripe_subscription_id | text | nullable |
-| airtable_token | text | nullable |
-| gamma_api_key | text | nullable |
+| hubspot_token | text | nullable |
+| monday_token | text | nullable |
+| monday_board_id | text | nullable |
+| trello_api_key | text | nullable |
+| trello_token | text | nullable |
+| buffer_access_token | text | nullable |
 
 ## Environment variables
 
@@ -26,14 +32,12 @@ Create a table named `castcal-auth` with these columns:
 ## Frontend keys
 
 - **Clerk**: Create app at [clerk.com](https://clerk.com), grab publishable key
-- **Notion client ID**: Create integration at [notion.so/my-integrations](https://notion.so/my-integrations)
 
 ## Backend keys
 
 - **Anthropic**: Get key at [console.anthropic.com](https://console.anthropic.com)
-- **Notion client secret**: From your Notion integration settings
 - **Stripe**: Create product + price, grab both keys
-- **Supabase**: Project URL + service role key from project settings
+- **Neon**: Project connection string from neon.tech dashboard
 
 ## Run locally
 
@@ -47,9 +51,3 @@ cd server
 npm install
 npm run dev
 ```
-
-## Notion OAuth setup
-
-In your Notion integration settings, set the redirect URI to:
-- Dev: `http://localhost:3000/redirect`
-- Prod: `https://yourdomain.com/redirect`
