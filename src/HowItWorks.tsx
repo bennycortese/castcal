@@ -3,8 +3,8 @@ import React from 'react';
 const steps = [
   {
     number: '01',
-    title: 'Connect your workspace',
-    description: 'Sign in and connect Buffer to schedule posts, or link HubSpot, Monday.com, or Trello to track your calendar.',
+    title: 'Sign in',
+    description: 'Create a free account — no credit card required.',
   },
   {
     number: '02',
@@ -18,8 +18,8 @@ const steps = [
   },
   {
     number: '04',
-    title: 'Posts queued in Buffer',
-    description: 'Approved posts land in your Buffer queue, pre-structured with channel, format, hook, and publish date — ready to go live.',
+    title: 'Export anywhere',
+    description: 'Download as CSV for any scheduler, push directly to Buffer, or export to HubSpot, Monday.com, or Trello — all from the review screen.',
   },
 ];
 

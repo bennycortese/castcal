@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { ShimmerButton } from './@/components/magic/shimmer-button';
 import { Button } from './@/components/ui/button';
 
-const PLATFORMS = ['Buffer', 'HubSpot', 'Monday.com', 'Trello'];
+const CHANNELS = ['Instagram', 'LinkedIn', 'X', 'YouTube', 'Newsletter', 'Blog'];
 
 export const Hero: React.FC = () => {
   const { user } = useUser();
@@ -30,7 +30,7 @@ export const Hero: React.FC = () => {
         </h1>
 
         <p className="text-lg text-white/45 max-w-xl mx-auto mb-10 leading-relaxed">
-          Paste a brief, campaign doc, or strategy — Briefcast extracts every content idea and pushes it straight to Buffer as a ready-to-publish schedule.
+          Paste a brief, campaign doc, or strategy — Briefcast extracts every content idea and delivers it as ready-to-publish posts for every channel.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 mb-14">
@@ -53,10 +53,10 @@ export const Hero: React.FC = () => {
 
         <div className="w-full border-t border-white/[0.05] pt-8">
           <p className="font-mono-feature text-[10px] uppercase tracking-widest text-white/25 mb-5">
-            Publishes via
+            Generates posts for
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            {PLATFORMS.map((p) => (
+            {CHANNELS.map((p) => (
               <span
                 key={p}
                 className="font-mono-feature px-3 py-1.5 rounded-full text-xs font-medium bg-white/[0.04] border border-white/[0.07] text-white/40 tracking-wide"

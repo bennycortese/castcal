@@ -24,7 +24,7 @@ const features = [
     icon: <Send className="w-5 h-5 text-white/60" />,
     title: 'Deliver to your stack',
     description:
-      'Push posts directly to Buffer to queue them for publishing, or export your calendar to HubSpot, Monday.com, or Trello — in one click.',
+      'Download posts as CSV for any scheduler, push directly to Buffer, or export to HubSpot, Monday.com, or Trello — all in one click.',
   },
   {
     badge: 'Speed',

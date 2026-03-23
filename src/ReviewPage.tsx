@@ -5,7 +5,7 @@ import { NavBar } from './Navbar';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/react';
 import { useUserIntegrations } from './hooks';
-import { Check, ArrowLeft, Loader2, ExternalLink, Send } from 'lucide-react';
+import { Check, ArrowLeft, Loader2, ExternalLink, Send, Download } from 'lucide-react';
 import { Button } from './@/components/ui/button';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -132,6 +132,30 @@ const ReviewPage: React.FC = () => {
     return token
       ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
       : { 'Content-Type': 'application/json' };
+  };
+
+  // ─── CSV export ─────────────────────────────────────────────────────────────
+
+  const downloadCSV = () => {
+    const esc = (v: string) => `"${(v ?? '').replace(/"/g, '""')}"`;
+    const headers = ['title', 'channel', 'format', 'hook', 'description', 'publish_date', 'status'];
+    const rows = approvedItems.map(item => [
+      esc(`${item.emoji} ${item.title}`),
+      esc(item.channel),
+      esc(item.format),
+      esc(item.hook),
+      esc(item.description),
+      esc(item.publish_date),
+      esc(item.status),
+    ].join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${calendar.calendar_title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   // ─── Buffer push ────────────────────────────────────────────────────────────
@@ -350,6 +374,18 @@ const ReviewPage: React.FC = () => {
           </span>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {/* CSV export — always available */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={downloadCSV}
+              disabled={approvedCount === 0}
+              className="gap-1.5 h-8 text-xs"
+            >
+              <Download className="w-3 h-3" />
+              CSV
+            </Button>
+
             {/* Secondary exports — only shown if token configured */}
             {integrations.hubspot_token && <SecBtn dest="hubspot" label="HubSpot" />}
             {integrations.monday_token && integrations.monday_board_id && <SecBtn dest="monday" label="Monday" />}
